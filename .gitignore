@@ -1,0 +1,23 @@
+# Entornos virtuales de Python (cada uno crea el suyo)
+DSWenv/
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+.env
+
+# Archivos subidos por los usuarios (fotos, certificados, adjuntos del chat)
+backend/media/
+
+# Angular / Node (se regeneran con npm install y npm start)
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+
+# Varios
+.claude/
+*.log
+.DS_Store
+Thumbs.db

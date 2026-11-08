@@ -1,0 +1,103 @@
+<div class="chat-shell" [class.con-conv]="!!id()">
+  <!-- Lista de conversaciones -->
+  <aside class="chat-list" aria-label="Conversaciones">
+    <h1 class="h3 px-3 pt-3 mb-2">Chats</h1>
+    @if (cargandoLista()) {
+      <p class="ofx-faint px-3"><span class="spinner-border spinner-ofx me-2"></span>Cargando</p>
+    }
+    <ul class="list-unstyled mb-0">
+      @for (c of convs(); track c.id) {
+        <li>
+          <a [routerLink]="[base(), c.id]" class="conv" [class.act]="c.id === actual()?.id">
+            <app-avatar [foto]="c.contraparte.foto_url" [nombre]="c.contraparte.nombre" [size]="44" />
+            <span class="min-w-0 flex-grow-1">
+              <span class="d-flex justify-content-between gap-2">
+                <strong class="text-truncate">{{ c.contraparte.nombre }}</strong>
+                <span class="ofx-faint flex-none">{{ (c.ultimo_mensaje?.fecha_envio || c.fecha_apertura) | hace }}</span>
+              </span>
+              <span class="d-block text-truncate ofx-muted small">{{ c.titulo }}</span>
+              <span class="d-flex justify-content-between gap-2">
+                <span class="text-truncate ofx-faint">{{ c.ultimo_mensaje?.texto }}</span>
+                @if (c.no_leidos) { <span class="unread">{{ c.no_leidos }}</span> }
+              </span>
+            </span>
+          </a>
+        </li>
+      } @empty {
+        @if (!cargandoLista()) {
+          <li class="px-3 py-4 ofx-muted">El chat se abre cuando un profesional acepta un pedido. Ahí van a coordinar la visita.</li>
+        }
+      }
+    </ul>
+  </aside>
+
+  <!-- Conversación -->
+  <section class="chat-main" aria-label="Conversación">
+    @if (actual(); as c) {
+      <header class="chat-head">
+        <a [routerLink]="base()" class="btn-icon d-md-none" aria-label="Volver a los chats"><i class="bi bi-arrow-left"></i></a>
+        <app-avatar [foto]="c.contraparte.foto_url" [nombre]="c.contraparte.nombre" [size]="40" />
+        <div class="min-w-0 flex-grow-1">
+          <strong class="d-block text-truncate">{{ c.contraparte.nombre }}</strong>
+          <a [routerLink]="linkPedido(c)" class="small text-truncate d-block">{{ c.titulo }}</a>
+        </div>
+        <app-oficio [slug]="c.oficio_slug" class="d-none d-sm-inline" />
+        <a class="btn btn-quiet btn-sm ver-contacto" [routerLink]="linkPedido(c)" fragment="contacto" title="Ver contacto y datos del trabajo">
+          <i class="bi bi-person-vcard"></i><span class="d-none d-sm-inline">Ver contacto</span>
+        </a>
+      </header>
+
+      <div class="chat-msgs" #scroller>
+        @if (cargandoMsgs()) { <p class="ofx-faint text-center"><span class="spinner-border spinner-ofx me-2"></span>Cargando mensajes</p> }
+        @for (m of mensajes(); track m.id; let i = $index) {
+          @if (dia(m, i); as d) { <div class="dia">{{ d }}</div> }
+          @if (m.emisor === 'SISTEMA') {
+            <div class="sistema">{{ m.texto }}</div>
+          } @else {
+            <div class="msg" [class.mio]="m.propio">
+              <div class="burbuja">
+                @if (m.adjunto_url) {
+                  @if (m.tipo_adjunto === 'imagen') { <a [href]="m.adjunto_url" target="_blank" rel="noopener"><img [src]="m.adjunto_url" alt="Foto enviada" class="adj" /></a> }
+                  @else if (m.tipo_adjunto === 'video') { <video [src]="m.adjunto_url" controls class="adj"></video> }
+                  @else { <a [href]="m.adjunto_url" target="_blank" rel="noopener"><i class="bi bi-file-earmark me-1"></i>Archivo adjunto</a> }
+                }
+                @if (m.texto) { <span class="txt">{{ m.texto }}</span> }
+                <span class="hora">{{ hora(m) }}@if (m.propio) { <i class="bi ms-1" [class.bi-check2-all]="m.leido" [class.bi-check2]="!m.leido"></i> }</span>
+              </div>
+            </div>
+          }
+        }
+      </div>
+
+      @if (c.activa) {
+        <form class="chat-compose" (ngSubmit)="enviar()">
+          @if (adjuntoUrl()) {
+            <div class="adj-prev">
+              @if (adjunto()?.type?.startsWith('video')) { <video [src]="adjuntoUrl()" muted></video> } @else { <img [src]="adjuntoUrl()" alt="Adjunto a enviar" /> }
+              <span class="small text-truncate">{{ adjunto()?.name }}</span>
+              <button type="button" class="btn-close btn-sm ms-auto" aria-label="Quitar adjunto" (click)="quitarAdjunto()"></button>
+            </div>
+          }
+          <div class="d-flex align-items-end gap-2">
+            <label class="btn-icon mb-0" title="Adjuntar foto o video" aria-label="Adjuntar foto o video">
+              <i class="bi bi-paperclip fs-5"></i>
+              <input type="file" accept="image/*,video/*" class="visually-hidden" (change)="elegirAdjunto($event)" />
+            </label>
+            <label for="chat-txt" class="visually-hidden">Mensaje</label>
+            <textarea id="chat-txt" name="texto" class="form-control" rows="1" placeholder="Escribí un mensaje" [(ngModel)]="texto" (keydown)="tecla($event)"></textarea>
+            <button class="btn btn-primary" [disabled]="enviando() || (!texto.trim() && !adjunto())" aria-label="Enviar mensaje">
+              @if (enviando()) { <span class="spinner-border spinner-ofx"></span> } @else { <i class="bi bi-send-fill"></i> }
+            </button>
+          </div>
+        </form>
+      } @else {
+        <p class="chat-closed">Este chat está cerrado porque el trabajo se canceló.</p>
+      }
+    } @else {
+      <div class="chat-vacio">
+        <i class="bi bi-chat-square-text"></i>
+        <p class="mb-0">{{ convs().length ? 'Elegí una conversación para ver los mensajes.' : 'Todavía no tenés conversaciones.' }}</p>
+      </div>
+    }
+  </section>
+</div>

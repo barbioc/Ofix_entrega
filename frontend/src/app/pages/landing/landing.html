@@ -1,0 +1,205 @@
+<header class="site-head">
+  <div class="container d-flex align-items-center gap-3">
+    <app-logo />
+    <nav class="ms-auto d-none d-md-flex align-items-center gap-4" aria-label="Secciones">
+      <a href="#informacion" class="nav-a">Información</a>
+      <a href="#como-funciona" class="nav-a">Cómo funciona</a>
+      <a href="#contacto" class="nav-a">Contacto</a>
+    </nav>
+    <div class="d-flex align-items-center gap-2 ms-auto ms-md-3">
+      <app-theme-toggle />
+      @if (auth.logueado()) {
+        <a class="btn btn-primary" [routerLink]="auth.inicio()">Ir a mi panel</a>
+      } @else {
+        <a class="btn btn-quiet d-none d-sm-inline-block" routerLink="/registro">Registrarse</a>
+        <a class="btn btn-primary" routerLink="/ingresar">Iniciar sesión</a>
+      }
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ======================================================= HERO -->
+  <section class="hero">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-6">
+          <span class="pill">Appweb para conectar con profesionales</span>
+          <h1 class="hero-title">El profesional que tu hogar necesita, <span class="t-blue">calificado</span> y <span class="t-orange">en tu puerta</span></h1>
+          <p class="hero-sub">Olvidate de las recomendaciones inciertas. Conectá con electricistas, gasistas y plomeros verificados. Elegí entre asignación automática de urgencia en minutos o buscá el profesional que prefieras.</p>
+          <div class="d-flex flex-wrap align-items-center gap-3 mt-4">
+            @if (auth.logueado()) {
+              <a class="btn btn-orange btn-lg" [routerLink]="auth.inicio()">Ir a mi panel</a>
+            } @else {
+              <a class="btn btn-orange btn-lg" routerLink="/ingresar">Iniciar sesión</a>
+            }
+            <a class="btn btn-quiet btn-lg" href="#informacion">Información sobre Ofix</a>
+            <a class="link-contacto" href="#contacto">Contacto →</a>
+          </div>
+          @if (!auth.logueado()) {
+            <p class="ofx-faint mt-4 mb-0">¿Primera vez? <a routerLink="/registro">Creá tu cuenta de cliente</a> o <a routerLink="/registro" [queryParams]="{ rol: 'profesional' }">registrate como profesional</a>.</p>
+          }
+        </div>
+        <div class="col-lg-6">
+          <figure class="hero-foto">
+            <span class="hero-foto-fondo" aria-hidden="true"></span>
+            <img [src]="foto" alt="Frente de una casa con su puerta de entrada" width="1000" height="1200" />
+            <figcaption class="hero-card">
+              <span class="estrellas" aria-label="5 estrellas">★★★★★</span>
+              <span>Gasista · disponible ahora</span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= SOBRE OFIX -->
+  <section id="informacion" class="section">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-4">
+          <p class="ofx-eyebrow">Sobre Ofix</p>
+          <h2 class="sec-title">Confianza antes de que toquen el timbre.</h2>
+        </div>
+        <div class="col-lg-8">
+          <p class="sobre-texto">Ofix es un sistema que facilita la búsqueda y el contacto entre clientes y profesionales capacitados, generando confianza a través de calificaciones y opiniones de usuarios reales.</p>
+          <div class="tarjetas">
+            <article class="tarjeta naranja"><h3>Calificaciones reales</h3><p>Estrellas y opiniones de usuarios que ya contrataron.</p></article>
+            <article class="tarjeta azul"><h3>Identidad validada</h3><p>Cada profesional verifica su identidad y certificaciones.</p></article>
+            <article class="tarjeta azul"><h3>Cerca de tu casa</h3><p>Geolocalización para vincularte con quien está en tu zona.</p></article>
+            <article class="tarjeta naranja"><h3>Datos protegidos</h3><p>Tu dirección y tu teléfono sólo los ve el profesional que acepta tu pedido.</p></article>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= CÓMO FUNCIONA -->
+  <section id="como-funciona" class="section borde-top">
+    <div class="container">
+      <p class="ofx-eyebrow blue">Cómo funciona</p>
+      <h2 class="sec-title mb-5" style="max-width: 32rem">Tres pasos entre el problema y la solución.</h2>
+      <ol class="pasos">
+        <li>
+          <span class="paso-num">01</span>
+          <h3>Publicá lo que necesitás</h3>
+          <p>Describí el trabajo, sumá fotos o videos y elegí la dirección. Si es una urgencia, lo pedís en segundos.</p>
+        </li>
+        <li>
+          <span class="paso-num">02</span>
+          <h3>Te asignamos al mejor</h3>
+          <p>Avisamos al profesional disponible con mejor puntaje cerca tuyo. Si preferís, lo elegís vos del catálogo.</p>
+        </li>
+        <li>
+          <span class="paso-num">03</span>
+          <h3>Coordinan y calificás</h3>
+          <p>Cuando acepta, se abre el chat para acordar la visita. Al terminar, dejás tu calificación con estrellas.</p>
+        </li>
+      </ol>
+      <p class="ofx-faint mt-4 mb-0">Ofix no cobra ni intermedia pagos, no agenda visitas y no sigue ubicaciones en vivo: eso lo acuerdan ustedes por chat.</p>
+    </div>
+  </section>
+
+  <!-- ======================================================= URGENCIAS (simulación del algoritmo) -->
+  <section class="section ofx-surface">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-5">
+          <p class="ofx-eyebrow">Urgencias</p>
+          <h2 class="sec-title">Así elegimos a quién le llega tu urgencia.</h2>
+          <p class="ofx-lead mt-3">Ordenamos a los profesionales disponibles por cercanía y reputación, con un impulso para quienes recién empiezan. El primero tiene 30 minutos de prioridad; si no responde, la oferta pasa también al siguiente.</p>
+          <p class="ofx-muted">Si ninguno de los primeros cinco la toma, te avisamos y elegís a alguien del catálogo sin volver a escribir el pedido.</p>
+        </div>
+        <div class="col-lg-7">
+          <figure class="sim" aria-label="Ejemplo de cómo Ofix asigna una urgencia">
+            <div class="sim-ticket">
+              <div class="d-flex align-items-center gap-2 mb-2">
+                <app-oficio slug="plomero" />
+                <span class="chip chip-urgente"><i class="bi bi-lightning-charge-fill"></i>Urgente</span>
+              </div>
+              <p class="sim-ticket-title">Pérdida de agua debajo de la bacha</p>
+              <p class="ofx-faint mb-0">Palermo, CABA. Recién publicado.</p>
+            </div>
+
+            <div class="sim-head" [class.on]="fase() >= 1">
+              <span>Profesionales disponibles</span>
+              <span class="ofx-faint">{{ fase() >= 3 ? 'Ordenados por puntaje' : 'Calculando puntaje' }}</span>
+            </div>
+
+            <ol class="sim-list" [class.on]="fase() >= 1" [style.height.rem]="candidatos.length * 3.6">
+              @for (c of candidatos; track c.nombre; let i = $index) {
+                <li class="sim-row" [style.transform]="'translateY(' + orden()[i] * 3.6 + 'rem)'"
+                    [class.win]="fase() >= 4 && c === ganador()" [class.dim]="fase() >= 4 && c !== ganador()">
+                  <span class="sim-pos ofx-num">{{ fase() >= 3 ? orden()[i] + 1 : '' }}</span>
+                  <app-avatar [nombre]="c.nombre" [size]="32" />
+                  <span class="sim-name">
+                    <span class="d-block fw-semibold">{{ c.nombre }}</span>
+                    <span class="ofx-faint ofx-num">{{ c.dist.toFixed(1).replace('.', ',') }} km
+                      @if (c.trabajos < 5) { <span class="ms-1">perfil nuevo</span> }
+                      @else { <span class="ms-1"><i class="bi bi-star-fill stars"></i> {{ c.promedio.toFixed(1) }}</span> }
+                    </span>
+                  </span>
+                  <span class="sim-bar" aria-hidden="true"><span [style.width.%]="fase() >= 2 ? (c.score / maxScore) * 100 : 0"></span></span>
+                  <span class="sim-score ofx-num">{{ fase() >= 2 ? c.score.toFixed(2) : '' }}</span>
+                </li>
+              }
+            </ol>
+
+            <div class="sim-offer" [class.on]="fase() >= 4" aria-live="polite">
+              <i class="bi bi-send-check"></i>
+              <span class="flex-grow-1"><strong>{{ ganador().nombre }}</strong> recibió la oferta. Si no responde, pasa al siguiente.</span>
+              <span class="sim-clock ofx-num" title="Tiempo de prioridad">{{ reloj() }}</span>
+            </div>
+
+            <figcaption class="ofx-faint mt-3 d-flex justify-content-between gap-3">
+              <span>Cercanía 60 %, reputación 40 % y un impulso para perfiles nuevos.</span>
+              <button type="button" class="btn-link-plain small flex-none" (click)="repetir()">Repetir</button>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= PROFESIONALES -->
+  <section class="section">
+    <div class="container">
+      <div class="pro-band">
+        <span class="pro-band-circulo" aria-hidden="true"></span>
+        <div class="pro-band-texto">
+          <h2>Recibí trabajos cerca tuyo, <span class="t-orange-claro">en tu horario.</span></h2>
+          <p>Elegí tus oficios, un radio de 1 a 150 km y tus horarios de atención. Mientras estás tomando trabajos, te llegan las urgencias de tu zona.</p>
+        </div>
+        <div class="d-flex flex-column gap-2 align-self-center position-relative">
+          <a class="btn btn-orange btn-lg" routerLink="/registro" [queryParams]="{ rol: 'profesional' }">Registrarme como profesional</a>
+          <a class="btn btn-claro" routerLink="/ingresar" [queryParams]="{ rol: 'profesional' }">Ya tengo cuenta</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================= CONTACTO -->
+  <section id="contacto" class="section borde-top">
+    <div class="container">
+      <div class="row g-5">
+        <div class="col-lg-5">
+          <p class="ofx-eyebrow blue">Contacto</p>
+          <h2 class="sec-title">¿Tenés dudas o querés sumarte?</h2>
+        </div>
+        <div class="col-lg-7">
+          <p class="sobre-texto">Escribinos y te respondemos a la brevedad.</p>
+          <a class="mail" href="mailto:contacto@ofix.com.ar">contacto&#64;ofix.com.ar</a>
+          <p class="ofx-muted mt-4 mb-0">Proyecto de Desarrollo de Software, 2026. Ocampo, Bárbara M. y Romero, Benjamín H.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-foot">
+  <div class="container d-flex flex-wrap align-items-center gap-3 py-4">
+    <app-logo />
+    <span class="ofx-faint ms-auto">© 2026 Ofix</span>
+  </div>
+</footer>

@@ -1,0 +1,118 @@
+<div class="container page">
+  @if (solicitud(); as s) {
+    <div class="enviar-banner mb-4">
+      <i class="bi bi-send"></i>
+      <div class="flex-grow-1">
+        <strong class="d-block">Elegí a quién enviarle «{{ s.titulo }}»</strong>
+        <span class="ofx-muted">Tu pedido está guardado. Se lo mandamos directo al profesional que elijas.</span>
+      </div>
+      <a [routerLink]="['/app/pedidos', s.id]" class="btn btn-sm btn-quiet">Ver pedido</a>
+    </div>
+  }
+
+  <h1 class="page-title">Profesionales</h1>
+  <p class="page-sub">Compará calificaciones, experiencia y distancia. Cuando acepten tu pedido, coordinan la visita por chat.</p>
+
+  <div class="filtros">
+    <div class="seg" role="group" aria-label="Oficio">
+      <button type="button" [class.act]="oficio() === ''" (click)="elegirOficio('')" [disabled]="!!solicitud()">Todos</button>
+      @for (o of oficios; track o.slug) {
+        <button type="button" [class]="'oficio-' + o.slug" [class.act]="oficio() === o.slug" (click)="elegirOficio(o.slug)" [disabled]="!!solicitud() && oficio() !== o.slug">
+          <i class="bi" [class]="o.icono"></i>{{ o.nombre }}
+        </button>
+      }
+    </div>
+    <div class="row g-2 mt-1">
+      <div class="col-md-5">
+        <label class="visually-hidden" for="c-q">Buscar</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-search"></i></span>
+          <input id="c-q" class="form-control" placeholder="Nombre o localidad" [(ngModel)]="q" (ngModelChange)="buscarLuego()" />
+        </div>
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="visually-hidden" for="c-orden">Ordenar</label>
+        <select id="c-orden" class="form-select" [(ngModel)]="orden" (ngModelChange)="buscar()">
+          <option value="recomendados">Recomendados</option>
+          <option value="distancia">Más cerca</option>
+          <option value="puntaje">Mejor calificados</option>
+          <option value="experiencia">Más experiencia</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-4">
+        <label class="visually-hidden" for="c-dir">Distancia desde</label>
+        <select id="c-dir" class="form-select" [(ngModel)]="direccion" (ngModelChange)="buscar()" [disabled]="!direcciones().length">
+          @for (d of direcciones(); track d.id) { <option [ngValue]="d.id">Desde {{ d.alias || d.calle + ' ' + d.numero }}</option> }
+          @if (!direcciones().length) { <option [ngValue]="null">Agregá una dirección para ver distancias</option> }
+        </select>
+      </div>
+    </div>
+    <div class="form-check form-switch mt-2">
+      <input class="form-check-input" type="checkbox" role="switch" id="c-cob" [(ngModel)]="soloCobertura" (ngModelChange)="buscar()" />
+      <label class="form-check-label" for="c-cob">Sólo los que cubren mi dirección</label>
+    </div>
+  </div>
+
+  @if (cargando()) {
+    <p class="ofx-faint py-4"><span class="spinner-border spinner-ofx me-2"></span>Buscando profesionales</p>
+  } @else {
+    <p class="ofx-faint mt-3 mb-1">{{ pros().length }} {{ pros().length === 1 ? 'profesional' : 'profesionales' }}</p>
+    <ul class="pros">
+      @for (p of pros(); track p.id) {
+        <li class="pro">
+          <a [routerLink]="['/app/catalogo', p.id]" [queryParams]="solicitud() ? { solicitud: solicitud()!.id } : {}" class="pro-main">
+            <app-avatar [foto]="p.foto_url" [nombre]="p.nombre + ' ' + p.apellido_inicial" [size]="56" />
+            <span class="min-w-0">
+              <span class="pro-name">{{ p.nombre }} {{ p.apellido_inicial }}
+                @if (p.verificado) { <i class="bi bi-patch-check-fill verif" title="Identidad y certificaciones verificadas"></i> }
+              </span>
+              <span class="d-flex flex-wrap gap-1 my-1">
+                @for (e of p.experiencias; track e.oficio) {
+                  @if (e.slug) { <app-oficio [slug]="e.slug" [texto]="e.nombre_oficio + ', ' + e.anios_experiencia + (e.anios_experiencia === 1 ? ' año' : ' años')" /> }
+                }
+              </span>
+              <span class="pro-meta">
+                <app-stars [valor]="p.puntaje_promedio" />
+                @if (p.cantidad_resenas) { <span class="ofx-faint">{{ p.cantidad_resenas }} {{ p.cantidad_resenas === 1 ? 'opinión' : 'opiniones' }}</span> }
+                <span class="ofx-faint">{{ p.servicios_realizados }} trabajos</span>
+              </span>
+            </span>
+          </a>
+          <div class="pro-side">
+            <span class="ofx-num">{{ p.distancia_km | km }}</span>
+            @if (fueraDeZona(p)) { <span class="ofx-faint">Fuera de su radio ({{ p.radio_cobertura_km }} km)</span> }
+            @else if (p.tomando_trabajos) { <span class="disp"><span class="disp-dot"></span>Tomando trabajos</span> }
+            <button type="button" class="btn btn-sm mt-1" [class.btn-primary]="!fueraDeZona(p)" [class.btn-quiet]="fueraDeZona(p)" (click)="accion(p)">
+              {{ solicitud() ? 'Enviarle mi pedido' : 'Pedir trabajo' }}
+            </button>
+          </div>
+        </li>
+      } @empty {
+        <li class="empty-state mt-2">
+          <i class="bi bi-search"></i>
+          No encontramos profesionales con esos filtros.
+          @if (soloCobertura) { Probá mostrar también a los que están fuera de tu zona. } @else { Probá con otro oficio o borrá la búsqueda. }
+        </li>
+      }
+    </ul>
+  }
+</div>
+
+@if (confirmar(); as p) {
+  <div class="ofx-backdrop" (click)="$event.target === $event.currentTarget && confirmar.set(null)">
+    <div class="ofx-modal" role="alertdialog" aria-modal="true" aria-labelledby="conf-t">
+      <div class="ofx-modal-head"><h2 id="conf-t" class="h4 mb-0">¿Enviarle tu pedido a {{ p.nombre }}?</h2></div>
+      <div class="ofx-modal-body">
+        <p class="mb-0">Va a ver «{{ solicitud()?.titulo }}», las fotos y la zona. Tu dirección exacta y tu teléfono los ve sólo si acepta.</p>
+      </div>
+      <div class="ofx-modal-foot">
+        <button class="btn btn-quiet" (click)="confirmar.set(null)">No, volver</button>
+        <button class="btn btn-primary" (click)="enviar()" [disabled]="enviando()">@if (enviando()) { <span class="spinner-border spinner-ofx me-1"></span> }Sí, enviar</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (pedirA(); as p) {
+  <app-nueva-solicitud [profesional]="p" [oficioInicial]="oficio() || 'plomero'" (cerrar)="pedirA.set(null)" (creada)="creada($event)" />
+}

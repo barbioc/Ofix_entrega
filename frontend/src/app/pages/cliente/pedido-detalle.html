@@ -1,0 +1,135 @@
+<div class="container page page-narrow">
+  <a routerLink="/app/pedidos" class="back-link"><i class="bi bi-arrow-left"></i>Mis pedidos</a>
+
+  @if (error()) {
+    <div class="empty-state"><i class="bi bi-exclamation-circle"></i>{{ error() }}</div>
+  } @else if (!s()) {
+    <p class="ofx-faint"><span class="spinner-border spinner-ofx me-2"></span>Cargando pedido</p>
+  } @else {
+    @let p = s()!;
+    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+      <app-oficio [slug]="p.oficio_slug" />
+      @if (p.es_urgente) { <span class="chip chip-urgente"><i class="bi bi-lightning-charge-fill"></i>Urgente</span> }
+      <span class="ofx-faint">Creado {{ p.fecha_solicitud | fecha }}</span>
+    </div>
+    <h1 class="h2 mb-4">{{ p.titulo }}</h1>
+
+    <!-- =================================== Estado -->
+    @if (buscando()) {
+      <section class="estado-panel estado-buscando mb-4" aria-live="polite">
+        <h2 class="h4 mb-1"><span class="pulso me-2"></span>Buscando profesional</h2>
+        <p class="ofx-muted mb-3">Le enviamos tu pedido al profesional {{ p.busqueda?.enviadas }} de {{ p.busqueda?.maximo }} con mejor puntaje cerca tuyo.</p>
+        @if (p.busqueda) {
+          <div class="d-flex align-items-baseline gap-2 flex-wrap">
+            <app-countdown class="buscando-reloj" [hasta]="p.busqueda.ultima_vence" (vencido)="recargarAlVencer()" />
+            <span class="ofx-faint">le quedan para responder antes de que lo enviemos también al siguiente</span>
+          </div>
+        }
+        <div class="pasos-busqueda" aria-hidden="true">
+          @for (on of pasosBusqueda(); track $index) { <span [class.on]="on"></span> }
+        </div>
+        <p class="ofx-faint">Si no responde a tiempo, la oferta se envía también al siguiente. Te avisamos apenas alguien acepte.</p>
+        <button class="btn btn-quiet" (click)="confirmarCancelar.set(true)">Cancelar pedido</button>
+      </section>
+    } @else if (esperandoDirecta()) {
+      <section class="estado-panel mb-4" aria-live="polite">
+        <h2 class="h4 mb-1">Esperando respuesta de {{ p.oferta_directa?.profesional }}</h2>
+        <p class="ofx-muted mb-0">Se lo enviamos {{ p.oferta_directa?.fecha_envio | hace }}. Cuando lo acepte se abre el chat para coordinar la visita.</p>
+        <button class="btn btn-quiet mt-3" (click)="confirmarCancelar.set(true)">Cancelar pedido</button>
+      </section>
+    } @else if (sinRespuesta()) {
+      <section class="estado-panel estado-buscando mb-4" role="alert">
+        <h2 class="h4 mb-2">Nadie pudo tomarlo a tiempo</h2>
+        <p class="mb-3">Los profesionales cercanos no pudieron responder a tiempo. Puedes seleccionar manualmente a un profesional de la lista para enviarle la solicitud de forma directa.</p>
+        <p class="ofx-faint">Tu pedido queda guardado con la descripción y las fotos, no hace falta crearlo de nuevo.</p>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" (click)="irAlCatalogo()">Elegir profesional de la lista</button>
+          <button class="btn btn-quiet" (click)="reintentar()" [disabled]="!!accion()">@if (accion() === 'reintentar') { <span class="spinner-border spinner-ofx me-1"></span> }Volver a buscar</button>
+          <button class="btn btn-quiet" (click)="confirmarCancelar.set(true)">Cancelar pedido</button>
+        </div>
+      </section>
+    } @else if (guardada()) {
+      <section class="estado-panel mb-4">
+        <h2 class="h4 mb-2">Tu pedido está guardado</h2>
+        @if (p.oferta_directa?.estado === 'RECHAZADA') {
+          <p class="ofx-muted">{{ p.oferta_directa?.profesional }} no puede tomarlo. Elegí a otro profesional para enviárselo.</p>
+        } @else {
+          <p class="ofx-muted">Elegí a qué profesional querés enviárselo.</p>
+        }
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary" (click)="irAlCatalogo()">Elegir profesional</button>
+          <button class="btn btn-quiet" (click)="confirmarCancelar.set(true)">Cancelar pedido</button>
+        </div>
+      </section>
+    } @else if (aceptada() && p.profesional_info) {
+      <section id="contacto" class="estado-panel estado-aceptado mb-4">
+        <p class="ofx-faint mb-2"><i class="bi bi-check-circle-fill text-success me-1"></i>Aceptado {{ p.fecha_aceptacion | fecha }}</p>
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <app-avatar [foto]="p.profesional_info.foto_url" [nombre]="p.profesional_info.nombre" [size]="56" />
+          <div class="flex-grow-1">
+            <a [routerLink]="['/app/catalogo', p.profesional_info.id]" class="h4 mb-0 d-block text-decoration-none">{{ p.profesional_contacto?.nombre }}</a>
+            <app-stars [valor]="p.profesional_info.puntaje_promedio" />
+            @if (p.profesional_info.verificado) { <span class="chip chip-ok ms-2"><i class="bi bi-patch-check-fill"></i>Verificado</span> }
+          </div>
+        </div>
+        <div class="d-grid gap-2 mb-3">
+          <span class="dato"><i class="bi bi-telephone"></i><a [href]="'tel:' + p.profesional_contacto?.telefono">{{ p.profesional_contacto?.telefono }}</a></span>
+          <span class="dato"><i class="bi bi-envelope"></i>{{ p.profesional_contacto?.email }}</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <a class="btn btn-primary" [routerLink]="['/app/chats', p.conversacion_id]"><i class="bi bi-chat-dots me-1"></i>Abrir chat</a>
+          @if (!p.completado_cliente) {
+            <button class="btn btn-quiet" (click)="completar()" [disabled]="!!accion()">@if (accion() === 'completar') { <span class="spinner-border spinner-ofx me-1"></span> }Marcar como terminado</button>
+          }
+          <button class="btn btn-quiet" (click)="confirmarCancelar.set(true)">Cancelar trabajo</button>
+        </div>
+        @if (p.completado_cliente && !p.completado_profesional) {
+          <p class="ofx-faint mt-3 mb-0">Marcaste el trabajo como terminado. Falta que {{ p.profesional_info.nombre }} lo confirme.</p>
+        } @else if (p.completado_profesional && !p.completado_cliente) {
+          <p class="ofx-faint mt-3 mb-0">{{ p.profesional_info.nombre }} marcó el trabajo como terminado. Confirmalo para poder calificarlo.</p>
+        }
+      </section>
+    } @else if (p.estado === 'FINALIZADA') {
+      <section class="estado-panel estado-aceptado mb-4">
+        @if (!p.calificacion) {
+          <h2 class="h4 mb-1">¿Cómo fue el trabajo de {{ p.profesional_info?.nombre }}?</h2>
+          <p class="ofx-muted">Tu calificación ayuda a otros vecinos a elegir.</p>
+          <div class="rate mb-3" role="radiogroup" aria-label="Puntaje">
+            @for (i of [1, 2, 3, 4, 5]; track i) {
+              <button type="button" role="radio" [attr.aria-checked]="puntaje() === i" [attr.aria-label]="i + (i === 1 ? ' estrella' : ' estrellas')" [class.on]="puntaje() >= i" (click)="puntaje.set(i)"><i class="bi bi-star-fill"></i></button>
+            }
+          </div>
+          <label class="form-label" for="coment">Comentario <span class="optional">(opcional)</span></label>
+          <textarea id="coment" class="form-control mb-3" rows="3" [(ngModel)]="comentario" placeholder="Puntualidad, prolijidad, cómo resolvió el problema."></textarea>
+          <button class="btn btn-primary" (click)="calificar()" [disabled]="!!accion()">@if (accion() === 'calificar') { <span class="spinner-border spinner-ofx me-1"></span> }Enviar calificación</button>
+        } @else {
+          <h2 class="h4 mb-2">Trabajo finalizado</h2>
+          <app-stars [valor]="p.calificacion.puntaje" />
+          @if (p.calificacion.comentario) { <p class="mt-2 mb-0">“{{ p.calificacion.comentario }}”</p> }
+        }
+        @if (p.conversacion_id) { <a class="d-inline-block mt-3" [routerLink]="['/app/chats', p.conversacion_id]">Ver el chat</a> }
+      </section>
+    } @else if (p.estado === 'CANCELADA') {
+      <section class="estado-panel mb-4"><h2 class="h4 mb-1">Pedido cancelado</h2><p class="ofx-muted mb-0">Si todavía lo necesitás, creá un pedido nuevo desde el inicio.</p></section>
+    }
+
+    @if (confirmarCancelar()) {
+      <div class="alert alert-warning d-flex flex-wrap align-items-center gap-2 mb-4" role="alertdialog" aria-label="Confirmar cancelación">
+        <span class="flex-grow-1">¿Cancelar este pedido? {{ aceptada() ? 'Se cierra el chat con el profesional.' : 'Los profesionales dejan de verlo.' }}</span>
+        <button class="btn btn-sm btn-urgente" (click)="cancelar()" [disabled]="!!accion()">Sí, cancelar</button>
+        <button class="btn btn-sm btn-quiet" (click)="confirmarCancelar.set(false)">No</button>
+      </div>
+    }
+
+    <!-- =================================== Ficha -->
+    <section class="ofx-panel ofx-panel-pad">
+      <h2 class="h4 mb-3">Detalle del pedido</h2>
+      <dl class="ficha mb-3">
+        <dt>Dirección</dt><dd>{{ p.direccion_detalle.texto }}</dd>
+        <dt>Estado</dt><dd>{{ estados[p.estado] }}</dd>
+      </dl>
+      <p class="ofx-measure" style="white-space: pre-line">{{ p.descripcion_problema }}</p>
+      @if (p.adjuntos.length) { <app-galeria [items]="p.adjuntos" /> }
+    </section>
+  }
+</div>

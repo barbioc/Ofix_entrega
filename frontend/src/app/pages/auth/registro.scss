@@ -1,0 +1,60 @@
+.reg { width: 100%; }
+.reg-title { font-size: clamp(1.7rem, 4vw, 2.3rem); margin-bottom: .5rem; }
+
+.progreso { margin-bottom: 2.25rem; }
+.segmentos { display: flex; gap: .35rem; }
+.seg {
+  flex: 1; height: .25rem; border-radius: 99px; background: var(--ofx-line);
+  transition: background .3s;
+  &.hecho { background: var(--ofx-blue); }
+  &.actual { background: linear-gradient(90deg, var(--ofx-blue) 50%, var(--ofx-line) 50%); }
+}
+
+.roles { display: grid; gap: .9rem; }
+.rol-btn {
+  display: flex; gap: 1rem; align-items: flex-start; text-align: left; padding: 1.25rem 1.35rem;
+  border: 1.5px solid var(--ofx-line-strong); border-radius: 1.1rem; background: var(--ofx-raised); color: var(--ofx-ink);
+  transition: border-color .15s, background .15s;
+  > i { font-size: 1.6rem; color: var(--ofx-blue); line-height: 1; margin-top: .1rem; }
+  strong { font-size: 1.1rem; font-family: 'Bricolage Grotesque', sans-serif; }
+  &:hover { border-color: var(--ofx-blue); }
+  &.sel { border-color: var(--ofx-blue); background: var(--ofx-blue-soft); }
+}
+
+.reg-nav { display: flex; justify-content: space-between; gap: 1rem; }
+
+.foto-row { display: flex; align-items: center; gap: 1rem; }
+.foto-pick {
+  width: 5rem; height: 5rem; border-radius: 999px; flex: none; cursor: pointer; overflow: hidden;
+  display: grid; place-items: center; background: var(--ofx-surface); border: 1.5px dashed var(--ofx-line-strong);
+  color: var(--ofx-ink-3); font-size: 1.5rem;
+  img { width: 100%; height: 100%; object-fit: cover; }
+  &:hover { border-color: var(--ofx-blue); color: var(--ofx-blue); }
+}
+
+.oficios-pick { display: grid; gap: .75rem; }
+.of-pick {
+  border: 1.5px solid var(--ofx-line-strong); border-radius: .875rem; background: var(--ofx-raised); overflow: hidden;
+  &.sel { border-color: var(--of); }
+}
+.of-toggle {
+  width: 100%; display: flex; align-items: center; gap: 1rem; padding: 1rem 1.1rem; border: 0; background: none; color: var(--ofx-ink);
+  > .bi { color: var(--of); }
+}
+.of-anios { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 0 1.1rem 1rem 4.85rem; }
+
+.radio-val { font-size: 2.6rem; font-weight: 700; line-height: 1; margin: .25rem 0 .75rem; .ofx-num { font-weight: 750; } }
+
+.horarios { border: 1px solid var(--ofx-line); border-radius: .75rem; }
+.h-row {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .5rem 1rem; padding: .6rem .9rem;
+  & + & { border-top: 1px solid var(--ofx-line); }
+  .form-check-label { min-width: 6rem; font-weight: 550; }
+  input[type='time'] { width: 7.2rem; }
+  &.off .form-check-label { color: var(--ofx-ink-3); }
+}
+
+.listo-ico {
+  width: 4.5rem; height: 4.5rem; border-radius: 999px; background: var(--ofx-ok-soft); color: var(--ofx-ok);
+  display: inline-grid; place-items: center; font-size: 2.4rem;
+}

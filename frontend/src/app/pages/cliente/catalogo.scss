@@ -1,0 +1,32 @@
+.enviar-banner {
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; padding: 1rem 1.25rem; border-radius: .875rem;
+  background: var(--ofx-blue-soft); border: 1px solid color-mix(in srgb, var(--ofx-blue) 30%, transparent);
+  > i { font-size: 1.4rem; color: var(--ofx-blue); }
+}
+.seg {
+  display: flex; flex-wrap: wrap; gap: .4rem;
+  button {
+    display: inline-flex; align-items: center; gap: .4rem; padding: .45rem .9rem; border-radius: 999px;
+    border: 1.5px solid var(--ofx-line-strong); background: var(--ofx-raised); color: var(--ofx-ink); font-weight: 620;
+    i { color: var(--of); }
+    &.act { border-color: var(--of, var(--ofx-blue)); background: var(--of-soft, var(--ofx-blue-soft)); }
+    &:disabled { opacity: .45; }
+    &.act:disabled { opacity: 1; }
+  }
+}
+.input-group-text { background: var(--ofx-raised); border-color: var(--ofx-line-strong); color: var(--ofx-ink-3); }
+.pros { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--ofx-line); }
+.pro { display: flex; align-items: center; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--ofx-line); }
+.pro-main { display: flex; gap: 1rem; align-items: flex-start; flex: 1; min-width: 0; color: var(--ofx-ink); text-decoration: none; }
+.pro-main:hover .pro-name { color: var(--ofx-blue); }
+.pro-name { display: block; font-size: 1.15rem; font-weight: 720; font-family: 'Bricolage Grotesque', sans-serif; }
+.verif { color: var(--ofx-blue); font-size: 1rem; margin-left: .2rem; }
+.pro-meta { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .9rem; font-size: .92rem; }
+.pro-side { display: flex; flex-direction: column; align-items: flex-end; text-align: right; gap: .15rem; flex: none; }
+.disp { font-size: .82rem; color: var(--ofx-ok); font-weight: 600; display: inline-flex; align-items: center; gap: .35rem; }
+.disp-dot { width: .5rem; height: .5rem; border-radius: 999px; background: var(--ofx-ok); }
+.min-w-0 { min-width: 0; }
+@media (max-width: 575px) {
+  .pro { flex-direction: column; align-items: stretch; }
+  .pro-side { flex-direction: row; align-items: center; justify-content: space-between; text-align: left; flex-wrap: wrap; }
+}

@@ -1,0 +1,267 @@
+<app-auth-shell [ancho]="true" [volver]="paso() < 3 ? '/' : null">
+<div class="reg">
+  @if (paso() < 3 && !listo()) { <p class="ofx-faint mb-3">¿Ya tenés cuenta? <a routerLink="/ingresar">Iniciá sesión</a></p> }
+
+  @if (!listo()) {
+    <!-- Barra de progreso minimalista -->
+    <div class="progreso" role="progressbar" [attr.aria-valuenow]="paso() + 1" aria-valuemin="1" [attr.aria-valuemax]="pasos().length"
+         [attr.aria-label]="'Paso ' + (paso() + 1) + ' de ' + pasos().length">
+      <div class="segmentos">
+        @for (p of pasos(); track p; let i = $index) {
+          <span class="seg" [class.hecho]="i < paso()" [class.actual]="i === paso()"></span>
+        }
+      </div>
+      <p class="ofx-faint mt-2 mb-0">Paso {{ paso() + 1 }} de {{ pasos().length }}: {{ pasos()[paso()] }}</p>
+    </div>
+  }
+
+  @if (listo()) {
+    <!-- ============================================ FIN -->
+    <section class="text-center py-5">
+      <span class="listo-ico"><i class="bi bi-check-lg"></i></span>
+      @if (rol() === 'PROFESIONAL') {
+        <h1 class="reg-title mt-4">Tu perfil profesional está listo</h1>
+        <p class="ofx-muted mx-auto ofx-measure">Ya podés recibir ofertas. Vamos a revisar tu DNI y tus certificaciones para mostrar la insignia de verificado en tu perfil.</p>
+      } @else {
+        <h1 class="reg-title mt-4">Tu cuenta está lista</h1>
+        <p class="ofx-muted mx-auto ofx-measure">Ya podés pedir un profesional de urgencia o buscar uno en el catálogo.</p>
+      }
+      <button class="btn btn-primary btn-lg mt-3" (click)="irAlPanel()">Ir a mi inicio</button>
+    </section>
+  } @else {
+    @switch (paso()) {
+      <!-- ============================================ PASO 1 -->
+      @case (0) {
+        <h1 class="reg-title">¿Cómo querés usar Ofix?</h1>
+        <p class="ofx-muted mb-4">Podés crear otra cuenta más adelante si necesitás las dos.</p>
+        <div class="roles">
+          <button type="button" class="rol-btn" [class.sel]="rol() === 'CLIENTE'" (click)="elegirRol('CLIENTE')">
+            <i class="bi bi-house-door"></i>
+            <span><strong>Registrarme como cliente</strong><span class="d-block ofx-muted">Necesito un gasista, electricista o plomero para mi casa.</span></span>
+          </button>
+          <button type="button" class="rol-btn" [class.sel]="rol() === 'PROFESIONAL'" (click)="elegirRol('PROFESIONAL')">
+            <i class="bi bi-tools"></i>
+            <span><strong>Registrarme como profesional</strong><span class="d-block ofx-muted">Quiero recibir trabajos de mi oficio cerca de mi zona.</span></span>
+          </button>
+        </div>
+      }
+
+      <!-- ============================================ PASO 2 -->
+      @case (1) {
+        <h1 class="reg-title">Creá tu acceso</h1>
+        <p class="ofx-muted mb-4">Con este email y contraseña vas a iniciar sesión.</p>
+        <form (ngSubmit)="siguienteCuenta()" novalidate>
+          <div class="mb-3">
+            <label class="form-label" for="r-email">Email</label>
+            <input id="r-email" name="email" type="email" class="form-control" autocomplete="email" [(ngModel)]="email" [class.is-invalid]="err('email')" autofocus />
+            @if (err('email')) { <div class="invalid-feedback">{{ err('email') }}</div> }
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="r-pass">Contraseña</label>
+            <div class="input-group has-validation">
+              <input id="r-pass" name="password" [type]="verPass() ? 'text' : 'password'" class="form-control" autocomplete="new-password" [(ngModel)]="password" [class.is-invalid]="err('password')" />
+              <button type="button" class="btn btn-quiet" (click)="verPass.set(!verPass())" [attr.aria-label]="verPass() ? 'Ocultar contraseña' : 'Mostrar contraseña'"><i class="bi" [class.bi-eye]="!verPass()" [class.bi-eye-slash]="verPass()"></i></button>
+              @if (err('password')) { <div class="invalid-feedback">{{ err('password') }}</div> }
+            </div>
+            <div class="form-text">Mínimo 8 caracteres, con letras y números.</div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label" for="r-pass2">Repetí la contraseña</label>
+            <input id="r-pass2" name="password2" [type]="verPass() ? 'text' : 'password'" class="form-control" autocomplete="new-password" [(ngModel)]="password2" [class.is-invalid]="err('password2')" />
+            @if (err('password2')) { <div class="invalid-feedback">{{ err('password2') }}</div> }
+          </div>
+          <div class="reg-nav">
+            <button type="button" class="btn btn-quiet" (click)="atras()">Atrás</button>
+            <button class="btn btn-primary" [disabled]="cargando()">@if (cargando()) { <span class="spinner-border spinner-ofx me-2"></span> }Continuar</button>
+          </div>
+        </form>
+      }
+
+      <!-- ============================================ PASO 3 -->
+      @case (2) {
+        <h1 class="reg-title">Tus datos</h1>
+        <p class="ofx-muted mb-4">
+          @if (rol() === 'PROFESIONAL') { Tu dirección exacta y tu DNI no se muestran a los clientes. }
+          @else { Tu dirección sólo la ve el profesional que acepte tu pedido. }
+        </p>
+        <form (ngSubmit)="crearCuenta()" novalidate>
+          <div class="foto-row mb-4">
+            <label class="foto-pick" for="r-foto">
+              @if (fotoUrl()) { <img [src]="fotoUrl()" alt="Vista previa de tu foto" /> }
+              @else { <i class="bi bi-camera"></i> }
+            </label>
+            <div>
+              <label class="form-label mb-1" for="r-foto">Foto de perfil <span class="optional">(opcional)</span></label>
+              <div class="d-flex gap-2 flex-wrap">
+                <label class="btn btn-quiet btn-sm mb-0" for="r-foto">{{ fotoUrl() ? 'Cambiar foto' : 'Subir foto' }}</label>
+                @if (fotoUrl()) { <button type="button" class="btn btn-sm btn-link-plain" (click)="quitarFoto()">Quitar</button> }
+              </div>
+              <input id="r-foto" type="file" accept="image/*" class="visually-hidden" (change)="elegirFoto($event)" />
+              @if (err('foto')) { <div class="text-danger small mt-1">{{ err('foto') }}</div> }
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label" for="r-nombre">Nombre</label>
+              <input id="r-nombre" name="nombre" class="form-control" autocomplete="given-name" [(ngModel)]="nombre" [class.is-invalid]="err('nombre')" />
+              @if (err('nombre')) { <div class="invalid-feedback">{{ err('nombre') }}</div> }
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="r-apellido">Apellido</label>
+              <input id="r-apellido" name="apellido" class="form-control" autocomplete="family-name" [(ngModel)]="apellido" [class.is-invalid]="err('apellido')" />
+              @if (err('apellido')) { <div class="invalid-feedback">{{ err('apellido') }}</div> }
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="r-ciudad">Ciudad</label>
+              <input id="r-ciudad" name="ciudad" class="form-control" autocomplete="address-level2" [(ngModel)]="ciudad" [class.is-invalid]="err('ciudad')" />
+              @if (err('ciudad')) { <div class="invalid-feedback">{{ err('ciudad') }}</div> }
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label" for="r-prov">Provincia</label>
+              <select id="r-prov" name="provincia" class="form-select" [(ngModel)]="provincia" [class.is-invalid]="err('provincia')">
+                <option value="" disabled>Elegí una provincia</option>
+                @for (p of provincias; track p) { <option [value]="p">{{ p }}</option> }
+              </select>
+              @if (err('provincia')) { <div class="invalid-feedback">{{ err('provincia') }}</div> }
+            </div>
+            <div [class]="rol() === 'PROFESIONAL' ? 'col-sm-6' : 'col-12'">
+              <label class="form-label" for="r-tel">Teléfono</label>
+              <input id="r-tel" name="telefono" type="tel" class="form-control" autocomplete="tel" placeholder="11 5555 1234" [(ngModel)]="telefono" [class.is-invalid]="err('telefono')" />
+              @if (err('telefono')) { <div class="invalid-feedback">{{ err('telefono') }}</div> }
+            </div>
+            @if (rol() === 'PROFESIONAL') {
+              <div class="col-sm-6">
+                <label class="form-label" for="r-dni">DNI</label>
+                <input id="r-dni" name="dni" inputmode="numeric" class="form-control" placeholder="Sin puntos" [(ngModel)]="dni" [class.is-invalid]="err('dni')" />
+                @if (err('dni')) { <div class="invalid-feedback">{{ err('dni') }}</div> }
+              </div>
+            }
+          </div>
+
+          <fieldset class="mt-4">
+            <legend class="form-label fs-6 mb-2">Dirección @if (rol() !== 'PROFESIONAL') { <span class="optional">(opcional, podés agregarla al pedir un trabajo)</span> } @else { <span class="optional">(desde acá se calcula tu radio de cobertura)</span> }</legend>
+            <div class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label" for="r-calle">Calle</label>
+                <input id="r-calle" name="calle" class="form-control" autocomplete="address-line1" [(ngModel)]="calle" [class.is-invalid]="err('calle')" />
+                @if (err('calle')) { <div class="invalid-feedback">{{ err('calle') }}</div> }
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="form-label" for="r-num">Número</label>
+                <input id="r-num" name="numero" class="form-control" [(ngModel)]="numero" [class.is-invalid]="err('numero')" />
+                @if (err('numero')) { <div class="invalid-feedback">{{ err('numero') }}</div> }
+              </div>
+              <div class="col-6 col-sm-3">
+                <label class="form-label" for="r-depto">Depto. <span class="optional">(opcional)</span></label>
+                <input id="r-depto" name="departamento" class="form-control" [(ngModel)]="departamento" />
+              </div>
+            </div>
+            <button type="button" class="btn btn-sm btn-quiet mt-3" (click)="usarUbicacion()" [disabled]="ubicando()">
+              @if (ubicando()) { <span class="spinner-border spinner-ofx me-1"></span> } @else { <i class="bi bi-crosshair me-1"></i> }
+              {{ lat !== null ? 'Ubicación guardada' : 'Usar mi ubicación actual' }}
+            </button>
+            <div class="form-text">Mejora el cálculo de distancias. Si no la compartís, usamos la dirección escrita.</div>
+          </fieldset>
+
+          <div class="reg-nav mt-4">
+            <button type="button" class="btn btn-quiet" (click)="atras()">Atrás</button>
+            <button class="btn btn-primary" [disabled]="cargando()">
+              @if (cargando()) { <span class="spinner-border spinner-ofx me-2"></span> }
+              {{ rol() === 'PROFESIONAL' ? 'Crear cuenta y continuar' : 'Crear cuenta' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      <!-- ============================================ PASO 4 (profesional) -->
+      @case (3) {
+        <h1 class="reg-title">¿Qué oficios hacés?</h1>
+        <p class="ofx-muted mb-4">Elegí uno o más e indicá tus años de experiencia en cada uno.</p>
+        <div class="oficios-pick">
+          @for (o of oficios(); track o.id) {
+            <div class="of-pick" [class]="'oficio-' + slug(o)" [class.sel]="estaElegido(o.id)">
+              <button type="button" class="of-toggle" (click)="alternarOficio(o.id)" [attr.aria-pressed]="estaElegido(o.id)">
+                <span class="oficio-mark"><i class="bi" [class]="meta[slug(o)].icono"></i></span>
+                <span class="flex-grow-1 text-start"><strong class="d-block">{{ o.nombre }}</strong><span class="ofx-faint">{{ meta[slug(o)].problema }}</span></span>
+                <i class="bi fs-4" [class.bi-check-circle-fill]="estaElegido(o.id)" [class.bi-circle]="!estaElegido(o.id)"></i>
+              </button>
+              @if (estaElegido(o.id)) {
+                <div class="of-anios">
+                  <label class="form-label mb-0" [for]="'anios-' + o.id">Años de experiencia</label>
+                  <input [id]="'anios-' + o.id" type="number" min="0" max="70" class="form-control" style="max-width: 7rem"
+                         [ngModel]="elegidos()[o.id]" (ngModelChange)="setAnios(o.id, $event)" [class.is-invalid]="err('anios_' + o.id)" />
+                  @if (err('anios_' + o.id)) { <div class="invalid-feedback d-block">{{ err('anios_' + o.id) }}</div> }
+                </div>
+              }
+            </div>
+          } @empty {
+            <div class="empty-state"><span class="spinner-border spinner-ofx"></span> Cargando oficios</div>
+          }
+        </div>
+        @if (err('oficios')) { <p class="text-danger mt-2">{{ err('oficios') }}</p> }
+        <div class="reg-nav mt-4">
+          <span></span>
+          <button class="btn btn-primary" (click)="guardarOficios()" [disabled]="cargando()">@if (cargando()) { <span class="spinner-border spinner-ofx me-2"></span> }Continuar</button>
+        </div>
+      }
+
+      <!-- ============================================ PASO 5 (profesional) -->
+      @case (4) {
+        <h1 class="reg-title">¿Hasta dónde y cuándo trabajás?</h1>
+        <p class="ofx-muted mb-4">Durante tu horario quedás tomando trabajos de urgencia automáticamente. Desde tu panel podés conectarte o desconectarte cuando quieras.</p>
+
+        <label class="form-label" for="r-radio">Radio de cobertura</label>
+        <div class="radio-val"><span class="ofx-num">{{ radio }}</span> km</div>
+        <input id="r-radio" type="range" class="form-range" min="1" max="150" step="1" [(ngModel)]="radio" [attr.aria-valuetext]="radio + ' kilómetros'" />
+        <div class="d-flex justify-content-between ofx-faint"><span>1 km</span><span>150 km</span></div>
+
+        <div class="d-flex align-items-end justify-content-between flex-wrap gap-2 mt-5 mb-2">
+          <span class="form-label mb-0">Horarios de atención</span>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-quiet" (click)="presetSemana()">Lun a vie, 8 a 18</button>
+            <button type="button" class="btn btn-sm btn-quiet" (click)="presetSiempre()">Todos los días, 24 h</button>
+          </div>
+        </div>
+        <div class="horarios">
+          @for (f of franjas; track $index; let i = $index) {
+            <div class="h-row" [class.off]="!f.activo">
+              <div class="form-check form-switch m-0">
+                <input class="form-check-input" type="checkbox" role="switch" [id]="'dia-' + i" [(ngModel)]="f.activo" />
+                <label class="form-check-label" [for]="'dia-' + i">{{ dias[i] }}</label>
+              </div>
+              @if (f.activo) {
+                <div class="d-flex align-items-center gap-2">
+                  <input type="time" class="form-control form-control-sm" [(ngModel)]="f.desde" [attr.aria-label]="dias[i] + ' desde'" />
+                  <span class="ofx-faint">a</span>
+                  <input type="time" class="form-control form-control-sm" [(ngModel)]="f.hasta" [attr.aria-label]="dias[i] + ' hasta'" />
+                </div>
+              } @else { <span class="ofx-faint">No atiendo</span> }
+              @if (err('h_' + i)) { <div class="text-danger small w-100">{{ err('h_' + i) }}</div> }
+            </div>
+          }
+        </div>
+        @if (err('horarios')) { <p class="text-danger mt-2">{{ err('horarios') }}</p> }
+        <div class="reg-nav mt-4">
+          <button type="button" class="btn btn-quiet" (click)="paso.set(3)">Atrás</button>
+          <button class="btn btn-primary" (click)="guardarCobertura()" [disabled]="cargando()">@if (cargando()) { <span class="spinner-border spinner-ofx me-2"></span> }Continuar</button>
+        </div>
+      }
+
+      <!-- ============================================ PASO 6 (profesional) -->
+      @case (5) {
+        <h1 class="reg-title">Certificaciones</h1>
+        <p class="ofx-muted mb-4">Subí fotos o PDF de tu matrícula, cursos o habilitaciones. Los revisamos para mostrar tu perfil como verificado. Si ahora no las tenés a mano, podés cargarlas después desde Configuración.</p>
+        <app-media-picker accept="image/*,application/pdf" etiqueta="Agregar certificados" ayuda="Fotos o PDF, hasta 15 MB cada uno." (cambio)="certificados = $event" />
+        <div class="reg-nav mt-4">
+          <button type="button" class="btn btn-quiet" (click)="paso.set(4)">Atrás</button>
+          <button class="btn btn-primary" (click)="finalizar()" [disabled]="cargando()">
+            @if (cargando()) { <span class="spinner-border spinner-ofx me-2"></span> }
+            {{ certificados.length ? 'Subir y terminar' : 'Terminar sin certificados' }}
+          </button>
+        </div>
+      }
+    }
+  }
+</div>
+</app-auth-shell>

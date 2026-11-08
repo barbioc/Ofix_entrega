@@ -1,0 +1,94 @@
+<div class="pro-page">
+  <!-- Tomando trabajos -->
+  <section class="disp" [class.on]="tomando()" aria-live="polite">
+    <button type="button" class="disp-btn" role="switch" [attr.aria-checked]="tomando()" (click)="alternar()" [disabled]="cambiando()">
+      <span class="disp-track"><span class="disp-knob"></span></span>
+      <span class="disp-label">{{ tomando() ? 'Tomando trabajos' : 'No estás tomando trabajos' }}</span>
+    </button>
+    <div class="disp-info">
+      @if (modo() === 'AUTOMATICO') {
+        <span>Automático según tu horario. {{ horarioHoy() }}.</span>
+        @if (resumenHorario()) { <span class="ofx-faint d-block">Días de atención: {{ resumenHorario() }}.</span> }
+      } @else {
+        <span>Lo cambiaste a mano. Vuelve a tu horario cuando empiece o termine tu próxima franja.</span>
+        <button type="button" class="btn-link-plain small d-block" (click)="automatico()">Volver al horario automático</button>
+      }
+    </div>
+  </section>
+
+  <div class="row g-5 mt-0">
+    <!-- Ofertas de trabajo -->
+    <section class="col-xl-7" aria-labelledby="t-ofertas">
+      <div class="d-flex align-items-baseline gap-2 mb-1">
+        <h1 id="t-ofertas" class="h2 mb-0">Ofertas de trabajo</h1>
+        @if (ofertas().length) { <span class="ofx-num ofx-muted">{{ ofertas().length }}</span> }
+      </div>
+      <p class="ofx-muted mb-3">Primero las urgentes. Tocá una para ver la ficha completa y decidir.</p>
+
+      @if (cargando()) {
+        <p class="ofx-faint"><span class="spinner-border spinner-ofx me-2"></span>Buscando ofertas</p>
+      } @else {
+        <ul class="ofertas">
+          @for (o of ofertas(); track o.id) {
+            <li>
+              <button type="button" class="oferta" [class.urgente]="o.es_urgente" [class]="'oficio-' + o.solicitud.oficio_slug" (click)="abierta.set(o)">
+                <span class="oficio-mark"><i class="bi" [class.bi-fire]="o.solicitud.oficio_slug === 'gasista'" [class.bi-lightning-charge-fill]="o.solicitud.oficio_slug === 'electricista'" [class.bi-droplet-fill]="o.solicitud.oficio_slug === 'plomero'"></i></span>
+                <span class="oferta-body">
+                  <span class="oferta-title">{{ o.solicitud.titulo }}</span>
+                  <span class="oferta-meta">
+                    <span class="ofx-num"><i class="bi bi-geo-alt"></i> {{ o.distancia_km | km }}</span>
+                    <span>{{ o.solicitud.zona }}</span>
+                    <span class="ofx-faint">{{ o.fecha_envio | hace }}</span>
+                  </span>
+                  <span class="oferta-desc">{{ o.solicitud.descripcion_problema }}</span>
+                </span>
+                <span class="oferta-side">
+                  @if (o.es_urgente && o.vence_prioridad) {
+                    <span class="chip chip-urgente"><i class="bi bi-lightning-charge-fill"></i>Urgente</span>
+                    <span class="prioridad"><app-countdown [hasta]="o.vence_prioridad" (vencido)="vencio()" /></span>
+                    <span class="ofx-faint small">de prioridad</span>
+                  } @else {
+                    <span class="chip chip-blue">Te eligió a vos</span>
+                  }
+                </span>
+              </button>
+            </li>
+          } @empty {
+            <li class="empty-state">
+              <i class="bi bi-inbox"></i>
+              @if (tomando()) { No tenés ofertas por ahora. Las urgencias de tu zona te llegan apenas un cliente las publica. }
+              @else { No tenés ofertas. Activá «Tomando trabajos» para recibir urgencias de tu zona. }
+            </li>
+          }
+        </ul>
+      }
+    </section>
+
+    <!-- Trabajos pendientes -->
+    <section class="col-xl-5" aria-labelledby="t-pend">
+      <h2 id="t-pend" class="h3 mb-1">Trabajos pendientes</h2>
+      <p class="ofx-muted mb-3">Aceptados y todavía sin marcar como terminados.</p>
+      <ul class="pendientes">
+        @for (t of pendientes(); track t.id) {
+          <li>
+            <a [routerLink]="['/pro/trabajos', t.id]" class="pend">
+              <app-oficio [slug]="t.oficio_slug" />
+              <span class="flex-grow-1 min-w-0">
+                <strong class="d-block text-truncate">{{ t.titulo }}</strong>
+                <span class="ofx-faint d-block text-truncate">{{ t.cliente_nombre }}, {{ t.direccion_exacta?.texto }}</span>
+                @if (t.completado_cliente) { <span class="small text-success">El cliente ya lo marcó terminado</span> }
+              </span>
+              <i class="bi bi-chevron-right ofx-faint"></i>
+            </a>
+          </li>
+        } @empty {
+          <li class="ofx-muted py-2">Cuando aceptes una oferta, va a aparecer acá con la dirección y el contacto del cliente.</li>
+        }
+      </ul>
+    </section>
+  </div>
+</div>
+
+@if (abierta(); as o) {
+  <app-oferta-detalle [oferta]="o" (cerrar)="cerrarDetalle()" (resuelta)="resuelta(o, $event)" />
+}

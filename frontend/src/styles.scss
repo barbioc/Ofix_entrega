@@ -1,0 +1,343 @@
+/* Ofix — tokens y estilos globales.
+   Basados en el diseño de Figma: Bricolage Grotesque (títulos) + Figtree (texto),
+   tinta #0a0a0a, azul #1553e0 y naranja #ff6a13. Bootstrap 5.3 aporta grilla,
+   formularios y modo oscuro (data-bs-theme). */
+
+:root,
+[data-bs-theme='light'] {
+  --ofx-blue: #1553e0;
+  --ofx-blue-strong: #0f43bd;
+  --ofx-blue-soft: #e8efff;
+  --ofx-orange: #ff6a13;
+  --ofx-orange-strong: #e85a05;
+  --ofx-orange-soft: #fff0e6;
+  --ofx-gas: #6b7280;
+  --ofx-gas-soft: #f1f2f4;
+  --ofx-agua: #12a0e8;
+  --ofx-agua-soft: #e4f5fd;
+  --ofx-luz: #f5a300;
+  --ofx-luz-soft: #fff8e1;
+  --ofx-urgente: var(--ofx-orange);
+  --ofx-urgente-soft: var(--ofx-orange-soft);
+  --ofx-ok: #16a34a;
+  --ofx-ok-soft: #e7f7ed;
+
+  --ofx-bg: #ffffff;
+  --ofx-app-bg: #f6f7f9;
+  --ofx-surface: #f6f7f9;
+  --ofx-raised: #ffffff;
+  --ofx-ink: #0a0a0a;
+  --ofx-ink-2: #52525b;
+  --ofx-ink-3: #8a8a93;
+  --ofx-line: #e6e7eb;
+  --ofx-line-strong: #d4d6dc;
+  --ofx-shadow: 0 1px 2px rgba(10, 10, 10, 0.05), 0 12px 32px -12px rgba(10, 10, 10, 0.18);
+
+  --bs-body-bg: var(--ofx-bg);
+  --bs-body-color: var(--ofx-ink);
+  --bs-secondary-color: var(--ofx-ink-2);
+  --bs-tertiary-bg: var(--ofx-surface);
+  --bs-border-color: var(--ofx-line);
+  --bs-primary: var(--ofx-blue);
+  --bs-primary-rgb: 21, 83, 224;
+  --bs-link-color: var(--ofx-blue);
+  --bs-link-color-rgb: 21, 83, 224;
+  --bs-link-hover-color: var(--ofx-blue-strong);
+  --bs-focus-ring-color: rgba(21, 83, 224, 0.3);
+  --bs-danger: #dc2626;
+  --bs-danger-rgb: 220, 38, 38;
+  --bs-border-radius: 0.75rem;
+  --bs-border-radius-lg: 1.25rem;
+  color-scheme: light;
+}
+
+[data-bs-theme='dark'] {
+  --ofx-blue: #5b8cff;
+  --ofx-blue-strong: #84a9ff;
+  --ofx-blue-soft: #17234a;
+  --ofx-orange: #ff7a2e;
+  --ofx-orange-strong: #ff8f4f;
+  --ofx-orange-soft: #3a2010;
+  --ofx-gas: #a1a1aa;
+  --ofx-gas-soft: #24252b;
+  --ofx-agua: #4cc0f5;
+  --ofx-agua-soft: #0f2d3d;
+  --ofx-luz: #ffc233;
+  --ofx-luz-soft: #362a0a;
+  --ofx-urgente: var(--ofx-orange);
+  --ofx-urgente-soft: var(--ofx-orange-soft);
+  --ofx-ok: #4ade80;
+  --ofx-ok-soft: #10301d;
+
+  --ofx-bg: #0a0a0a;
+  --ofx-app-bg: #101014;
+  --ofx-surface: #16161b;
+  --ofx-raised: #1b1b21;
+  --ofx-ink: #f5f5f6;
+  --ofx-ink-2: #b4b4bc;
+  --ofx-ink-3: #82828c;
+  --ofx-line: #2a2a31;
+  --ofx-line-strong: #3a3a43;
+  --ofx-shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 16px 36px -14px rgba(0, 0, 0, 0.8);
+
+  --bs-body-bg: var(--ofx-bg);
+  --bs-body-color: var(--ofx-ink);
+  --bs-secondary-color: var(--ofx-ink-2);
+  --bs-tertiary-bg: var(--ofx-surface);
+  --bs-border-color: var(--ofx-line);
+  --bs-primary: var(--ofx-blue);
+  --bs-primary-rgb: 91, 140, 255;
+  --bs-link-color: var(--ofx-blue);
+  --bs-link-color-rgb: 91, 140, 255;
+  --bs-link-hover-color: var(--ofx-blue-strong);
+  --bs-focus-ring-color: rgba(91, 140, 255, 0.35);
+  color-scheme: dark;
+}
+
+/* ---------- Tipografía ---------- */
+html { scroll-behavior: smooth; }
+::selection { background: var(--ofx-orange); color: #fff; }
+body {
+  font-family: 'Figtree', system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.55;
+  background: var(--ofx-bg);
+  color: var(--ofx-ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .ofx-display {
+  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--ofx-ink);
+}
+h1 { font-size: clamp(2rem, 4.6vw, 3.6rem); }
+h2 { font-size: clamp(1.55rem, 2.8vw, 2.3rem); }
+h3 { font-size: 1.3rem; font-weight: 700; }
+h4 { font-size: 1.08rem; font-weight: 700; letter-spacing: -0.01em; }
+
+.ofx-num { font-variant-numeric: tabular-nums; font-weight: 600; }
+.ofx-lead { font-size: 1.1rem; color: var(--ofx-ink-2); max-width: 38rem; }
+.ofx-muted { color: var(--ofx-ink-2); }
+.ofx-faint { color: var(--ofx-ink-3); font-size: 0.875rem; }
+.ofx-measure { max-width: 68ch; }
+.ofx-eyebrow { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ofx-orange); margin-bottom: .75rem; }
+.ofx-eyebrow.blue { color: var(--ofx-blue); }
+
+a { text-underline-offset: 0.18em; }
+
+/* ---------- Botones (píldora, como en Figma) ---------- */
+.btn {
+  --bs-btn-font-weight: 600;
+  --bs-btn-padding-y: 0.62rem;
+  --bs-btn-padding-x: 1.35rem;
+  --bs-btn-border-radius: 999px;
+  --bs-btn-font-size: 0.95rem;
+}
+.btn-sm { --bs-btn-padding-y: 0.38rem; --bs-btn-padding-x: 0.95rem; --bs-btn-font-size: 0.85rem; }
+.btn-lg { --bs-btn-padding-y: 0.85rem; --bs-btn-padding-x: 1.75rem; --bs-btn-font-size: 1rem; }
+.btn-primary {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--ofx-blue);
+  --bs-btn-border-color: var(--ofx-blue);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--ofx-blue-strong);
+  --bs-btn-hover-border-color: var(--ofx-blue-strong);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ofx-blue-strong);
+  --bs-btn-disabled-color: #fff;
+  --bs-btn-disabled-bg: var(--ofx-blue);
+  --bs-btn-disabled-border-color: var(--ofx-blue);
+}
+[data-bs-theme='dark'] .btn-primary { --bs-btn-color: #0a0a0a; --bs-btn-hover-color: #0a0a0a; --bs-btn-active-color: #0a0a0a; --bs-btn-disabled-color: #0a0a0a; }
+.btn-urgente, .btn-orange {
+  --bs-btn-color: #fff;
+  --bs-btn-bg: var(--ofx-orange);
+  --bs-btn-border-color: var(--ofx-orange);
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--ofx-orange-strong);
+  --bs-btn-hover-border-color: var(--ofx-orange-strong);
+  --bs-btn-active-color: #fff;
+  --bs-btn-active-bg: var(--ofx-orange-strong);
+  --bs-btn-disabled-bg: var(--ofx-orange);
+  --bs-btn-disabled-border-color: var(--ofx-orange);
+  --bs-btn-disabled-color: #fff;
+}
+.btn-quiet {
+  --bs-btn-color: var(--ofx-ink);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: var(--ofx-ink);
+  --bs-btn-border-width: 1.5px;
+  --bs-btn-hover-bg: var(--ofx-surface);
+  --bs-btn-hover-border-color: var(--ofx-ink);
+  --bs-btn-hover-color: var(--ofx-ink);
+  --bs-btn-active-bg: var(--ofx-surface);
+  --bs-btn-active-color: var(--ofx-ink);
+  --bs-btn-active-border-color: var(--ofx-ink);
+}
+.btn-quiet.btn-sm { --bs-btn-border-color: var(--ofx-line-strong); --bs-btn-border-width: 1px; --bs-btn-hover-border-color: var(--ofx-ink-3); }
+.btn-link-plain { background: none; border: 0; padding: 0; color: var(--ofx-blue); font-weight: 600; text-decoration: none; }
+.btn-link-plain:hover { text-decoration: underline; }
+.btn-icon {
+  width: 2.5rem; height: 2.5rem; padding: 0; display: inline-grid; place-items: center;
+  border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--ofx-ink);
+  position: relative;
+  &:hover { background: var(--ofx-surface); }
+}
+.btn-icon-ring { border-color: var(--ofx-line); background: var(--ofx-raised); }
+
+:focus-visible { outline: 3px solid var(--bs-focus-ring-color); outline-offset: 2px; }
+.btn:focus-visible { box-shadow: 0 0 0 0.25rem var(--bs-focus-ring-color); }
+
+/* ---------- Formularios ---------- */
+.form-label { font-weight: 600; font-size: 0.925rem; margin-bottom: 0.35rem; }
+.form-control, .form-select {
+  border-radius: 0.75rem; padding: 0.7rem 0.95rem; border-color: var(--ofx-line-strong);
+  background-color: var(--ofx-raised);
+}
+.form-control::placeholder { color: var(--ofx-ink-3); }
+.form-control:focus, .form-select:focus { border-color: var(--ofx-blue); box-shadow: 0 0 0 0.2rem var(--bs-focus-ring-color); }
+.form-text { color: var(--ofx-ink-3); }
+.invalid-feedback { color: #dc2626; }
+.form-control.is-invalid, .form-select.is-invalid { border-color: #dc2626; }
+.form-range { accent-color: var(--ofx-blue); }
+.form-range::-webkit-slider-thumb { background: var(--ofx-blue); }
+.form-range::-moz-range-thumb { background: var(--ofx-blue); }
+.form-check-input:checked { background-color: var(--ofx-blue); border-color: var(--ofx-blue); }
+.optional { font-weight: 400; color: var(--ofx-ink-3); }
+
+/* ---------- Superficies ---------- */
+.ofx-panel {
+  background: var(--ofx-raised);
+  border: 1px solid var(--ofx-line);
+  border-radius: 1.25rem;
+}
+.ofx-panel-pad { padding: 1.5rem; }
+.ofx-surface { background: var(--ofx-surface); }
+.ofx-rule { border-top: 1px solid var(--ofx-line); }
+
+/* ---------- Oficios: un color por oficio, igual que el logo ---------- */
+.oficio-gasista { --of: var(--ofx-gas); --of-soft: var(--ofx-gas-soft); }
+.oficio-electricista { --of: var(--ofx-luz); --of-soft: var(--ofx-luz-soft); }
+.oficio-plomero { --of: var(--ofx-agua); --of-soft: var(--ofx-agua-soft); }
+.oficio-badge {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.2rem 0.6rem 0.2rem 0.45rem; border-radius: 999px;
+  background: var(--of-soft); color: var(--ofx-ink); font-size: 0.82rem; font-weight: 600;
+  i { color: var(--of); }
+}
+.oficio-mark {
+  width: 2.75rem; height: 2.75rem; border-radius: 0.75rem; display: grid; place-items: center;
+  background: var(--of-soft); color: var(--of); font-size: 1.35rem; flex: none;
+}
+
+/* ---------- Chips de estado ---------- */
+.chip {
+  display: inline-flex; align-items: center; gap: 0.35rem; border-radius: 999px;
+  padding: 0.18rem 0.65rem; font-size: 0.8rem; font-weight: 650; white-space: nowrap;
+  background: var(--ofx-surface); color: var(--ofx-ink-2); border: 1px solid var(--ofx-line);
+}
+.chip-urgente { background: var(--ofx-urgente-soft); color: var(--ofx-urgente); border-color: transparent; }
+.chip-ok { background: var(--ofx-ok-soft); color: var(--ofx-ok); border-color: transparent; }
+.chip-blue { background: var(--ofx-blue-soft); color: var(--ofx-blue); border-color: transparent; }
+
+/* ---------- Avatar ---------- */
+.avatar {
+  border-radius: 999px; object-fit: cover; background: var(--ofx-blue-soft); color: var(--ofx-blue);
+  display: inline-grid; place-items: center; font-weight: 700; flex: none; overflow: hidden;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+/* ---------- Modal propio (sin JS de Bootstrap) ---------- */
+.ofx-backdrop {
+  position: fixed; inset: 0; background: rgba(6, 16, 26, 0.55); z-index: 1050;
+  display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem; overflow-y: auto;
+  animation: ofx-fade 0.15s ease-out;
+}
+.ofx-modal {
+  width: 100%; max-width: 40rem; background: var(--ofx-raised); border-radius: 1.75rem;
+  border: 1px solid var(--ofx-line); box-shadow: var(--ofx-shadow);
+  animation: ofx-rise 0.2s ease-out;
+}
+.ofx-modal-lg { max-width: 52rem; }
+.ofx-modal-head { padding: 1.75rem 1.75rem 0.75rem; display: flex; align-items: flex-start; gap: 1rem; }
+.ofx-modal-body { padding: 0.5rem 1.75rem 1.25rem; }
+.ofx-modal-foot {
+  padding: 0.5rem 1.75rem 1.75rem;
+  display: flex; gap: 0.75rem; justify-content: flex-end; flex-wrap: wrap;
+}
+@keyframes ofx-fade { from { opacity: 0; } }
+@keyframes ofx-rise { from { opacity: 0; transform: translateY(10px); } }
+
+/* ---------- Menú desplegable propio ---------- */
+.ofx-menu {
+  position: absolute; right: 0; top: calc(100% + 0.5rem); min-width: 15rem; z-index: 1040;
+  background: var(--ofx-raised); border: 1px solid var(--ofx-line); border-radius: 0.75rem;
+  box-shadow: var(--ofx-shadow); padding: 0.4rem; animation: ofx-rise 0.12s ease-out;
+}
+.ofx-menu-item {
+  display: flex; width: 100%; align-items: center; gap: 0.65rem; padding: 0.55rem 0.75rem;
+  border-radius: 0.5rem; color: var(--ofx-ink); text-decoration: none; background: none; border: 0; text-align: left;
+  &:hover { background: var(--ofx-surface); color: var(--ofx-ink); }
+}
+
+/* ---------- Toasts ---------- */
+.ofx-toasts { position: fixed; bottom: 1.25rem; left: 50%; transform: translateX(-50%); z-index: 1100; display: grid; gap: 0.5rem; width: min(30rem, calc(100vw - 2rem)); }
+@media (max-width: 991px) { .pro-host ~ .ofx-toasts, body:has(.pro-host) .ofx-toasts { bottom: calc(4.6rem + env(safe-area-inset-bottom)); } }
+.ofx-toast {
+  background: var(--ofx-ink); color: var(--ofx-bg); padding: 0.8rem 1rem; border-radius: 0.65rem;
+  box-shadow: var(--ofx-shadow); display: flex; gap: 0.6rem; align-items: flex-start; animation: ofx-rise 0.18s ease-out;
+}
+.ofx-toast.error { background: #dc2626; color: #fff; }
+
+/* ---------- Varios ---------- */
+.empty-state {
+  border: 1px dashed var(--ofx-line-strong); border-radius: 0.875rem; padding: 2rem 1.5rem; text-align: center; color: var(--ofx-ink-2);
+  i { font-size: 1.75rem; color: var(--ofx-ink-3); display: block; margin-bottom: 0.5rem; }
+}
+.stars { color: var(--ofx-luz); letter-spacing: 0.05em; white-space: nowrap; }
+.dot-badge {
+  position: absolute; top: 0.2rem; right: 0.15rem; min-width: 1.1rem; height: 1.1rem; padding: 0 0.3rem;
+  border-radius: 999px; background: var(--ofx-urgente); color: #fff; font-size: 0.68rem; font-weight: 700;
+  display: grid; place-items: center; border: 2px solid var(--ofx-bg);
+}
+.spinner-ofx { width: 1rem; height: 1rem; border-width: 0.15em; }
+.thumb-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(6.5rem, 1fr)); gap: 0.5rem; }
+.thumb {
+  position: relative; aspect-ratio: 1; border-radius: 0.6rem; overflow: hidden; background: var(--ofx-surface); border: 1px solid var(--ofx-line);
+  img, video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-x { position: absolute; top: 0.3rem; right: 0.3rem; width: 1.6rem; height: 1.6rem; border-radius: 999px; border: 0; background: rgba(6,16,26,.7); color: #fff; display: grid; place-items: center; font-size: 0.8rem; }
+}
+.dropzone {
+  border: 1.5px dashed var(--ofx-line-strong); border-radius: 0.75rem; padding: 1.25rem; text-align: center; cursor: pointer;
+  color: var(--ofx-ink-2); background: var(--ofx-surface); display: block;
+  &:hover, &.over { border-color: var(--ofx-blue); color: var(--ofx-blue); }
+  input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+}
+.page { padding: 2rem 0 4rem; }
+.page-narrow { max-width: 46rem; }
+.pro-page { padding: 2rem 1.5rem 4rem; max-width: 84rem; }
+@media (max-width: 575px) { .pro-page { padding: 1.25rem 1rem 3rem; } }
+@media (max-width: 991px) { .pro-page { padding-bottom: 6rem; } }
+.place-items-center { place-items: center; }
+
+/* Título de cada pantalla interna: mismo tamaño y bajada en cliente y profesional */
+.page-title { font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2rem); margin-bottom: .35rem; }
+.page-sub { color: var(--ofx-ink-2); margin-bottom: 1.5rem; max-width: 40rem; }
+
+/* Barra superior compartida: logo o navegación a la izquierda, campana y cuenta a la derecha */
+.app-top { border-bottom: 1px solid var(--ofx-line); background: var(--ofx-bg); position: sticky; top: 0; z-index: 30; }
+.app-top-in { display: flex; align-items: center; gap: .75rem; height: 4.25rem; }
+.app-top-sep { width: 1px; height: 1.6rem; background: var(--ofx-line); }
+.app-top-cuenta { display: flex; align-items: center; gap: .5rem; }
+.punto-nuevo { width: .45rem; height: .45rem; border-radius: 999px; background: var(--ofx-orange); flex: none; }
+.back-link { display: inline-flex; gap: 0.4rem; align-items: center; color: var(--ofx-ink-2); text-decoration: none; font-weight: 600; margin-bottom: 1rem; &:hover { color: var(--ofx-ink); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+}
+
+/* Fondo gris claro de las pantallas internas (como en Figma) */
+.app-bg { background: var(--ofx-app-bg); min-height: 100vh; }
