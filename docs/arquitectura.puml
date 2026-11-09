@@ -1,0 +1,29 @@
+@startuml arquitectura
+title Ofix - Arquitectura del sistema
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam roundCorner 20
+skinparam rectangle {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam ArrowColor black
+
+rectangle "Frontend\n(Angular)" as fe
+rectangle "API / Backend\n(Django REST)" as be
+rectangle "Base de Datos\n(MySQL)" as db
+rectangle "Geocodificación\n(OpenStreetMap)" as geo
+
+fe <-right-> be
+be <-right-> db
+be <-down-> geo
+
+legend bottom
+  Comunicación entre los componentes:
+  • Frontend ⇄ Backend: API REST (JSON)
+  • Backend ⇄ BD: consultas SQL
+  • Backend ⇄ Geocodificación: HTTP request (obtiene las coordenadas de una dirección)
+endlegend
+
+@enduml

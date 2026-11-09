@@ -46,12 +46,6 @@ import { Toasts } from '../core/toast.service';
           <label class="form-label" for="d-cp">Código postal <span class="optional">(opcional)</span></label>
           <input id="d-cp" name="cp" class="form-control" [(ngModel)]="d.cod_postal" />
         </div>
-        <div class="col-sm-6 d-flex align-items-end">
-          <button type="button" class="btn btn-quiet w-100" (click)="ubicar()" [disabled]="ubicando()">
-            @if (ubicando()) { <span class="spinner-border spinner-ofx me-1"></span> } @else { <i class="bi bi-crosshair me-1"></i> }
-            {{ d.latitud !== null && d.latitud !== undefined ? 'Ubicación guardada' : 'Usar mi ubicación' }}
-          </button>
-        </div>
       </div>
       <div class="d-flex justify-content-end gap-2 mt-3">
         <button type="button" class="btn btn-quiet" (click)="cancelar.emit()">Cancelar</button>
@@ -70,23 +64,12 @@ export class DireccionForm implements OnInit {
   d: Partial<Direccion> = {};
   e = signal<Record<string, string>>({});
   cargando = signal(false);
-  ubicando = signal(false);
 
   ngOnInit() {
     const u = this.auth.usuario();
     this.d = this.editar()
       ? { ...this.editar()! }
       : { alias: '', calle: '', numero: '', departamento: '', localidad: u?.ciudad ?? '', provincia: u?.provincia || 'Buenos Aires', cod_postal: '', latitud: null, longitud: null };
-  }
-
-  ubicar() {
-    if (!navigator.geolocation) return;
-    this.ubicando.set(true);
-    navigator.geolocation.getCurrentPosition(
-      p => { this.d.latitud = +p.coords.latitude.toFixed(6); this.d.longitud = +p.coords.longitude.toFixed(6); this.ubicando.set(false); },
-      () => { this.ubicando.set(false); this.toasts.error('No pudimos obtener tu ubicación. Usaremos la dirección escrita.'); },
-      { timeout: 10000 },
-    );
   }
 
   guardar() {
@@ -97,7 +80,8 @@ export class DireccionForm implements OnInit {
     this.e.set(e);
     if (Object.keys(e).length) return;
     this.cargando.set(true);
-    const { id, texto, ...body } = this.d as Direccion;
+    // Las coordenadas las calcula el servidor a partir de la dirección escrita.
+    const { id, texto, latitud, longitud, ...body } = this.d as Direccion;
     const req = this.editar() ? this.api.editarDireccion(this.editar()!.id, body) : this.api.crearDireccion(body);
     req.subscribe({
       next: d => { this.cargando.set(false); this.guardada.emit(d); },

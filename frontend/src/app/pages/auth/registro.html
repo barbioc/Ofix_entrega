@@ -157,11 +157,6 @@
                 <input id="r-depto" name="departamento" class="form-control" [(ngModel)]="departamento" />
               </div>
             </div>
-            <button type="button" class="btn btn-sm btn-quiet mt-3" (click)="usarUbicacion()" [disabled]="ubicando()">
-              @if (ubicando()) { <span class="spinner-border spinner-ofx me-1"></span> } @else { <i class="bi bi-crosshair me-1"></i> }
-              {{ lat !== null ? 'Ubicación guardada' : 'Usar mi ubicación actual' }}
-            </button>
-            <div class="form-text">Mejora el cálculo de distancias. Si no la compartís, usamos la dirección escrita.</div>
           </fieldset>
 
           <div class="reg-nav mt-4">

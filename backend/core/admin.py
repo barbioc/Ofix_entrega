@@ -60,7 +60,7 @@ class NotificacionAdmin(admin.ModelAdmin):
     list_display = ('usuario', 'tipo', 'fecha_envio', 'leida')
     list_filter = ('leida', 'tipo')
 
-from .models import AdjuntoSolicitud, OfertaTrabajo
+from .models import OfertaTrabajo
 
 
 @admin.register(OfertaTrabajo)
@@ -68,7 +68,3 @@ class OfertaTrabajoAdmin(admin.ModelAdmin):
     list_display = ('id', 'solicitud', 'profesional', 'estado', 'es_urgente', 'posicion', 'score', 'distancia_km', 'fecha_envio')
     list_filter = ('estado', 'es_urgente')
 
-
-@admin.register(AdjuntoSolicitud)
-class AdjuntoSolicitudAdmin(admin.ModelAdmin):
-    list_display = ('id', 'solicitud', 'tipo', 'fecha')

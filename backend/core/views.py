@@ -4,6 +4,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.files.storage import default_storage
 from django.db import transaction
 from django.db.models import Q
 from django.utils import timezone
@@ -19,7 +20,7 @@ from . import asignacion
 from .asignacion import notificar
 from .models import (
     Usuario, Cliente, Direccion, Oficio, Profesional, ExperienciaOficio, Certificacion,
-    SolicitudServicio, AdjuntoSolicitud, OfertaTrabajo, Calificacion, Conversacion,
+    SolicitudServicio, OfertaTrabajo, Calificacion, Conversacion,
     Mensaje, Notificacion,
 )
 from .serializers import (
@@ -461,7 +462,7 @@ class SolicitudViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.
     def get_queryset(self):
         qs = (SolicitudServicio.objects.filter(cliente=perfil(self.request).cliente)
               .select_related('oficio', 'direccion', 'profesional__usuario__user')
-              .prefetch_related('adjuntos', 'ofertas').order_by('-fecha_solicitud'))
+              .prefetch_related('ofertas').order_by('-fecha_solicitud'))
         estado = self.request.query_params.get('estado')
         # Un trabajo que el cliente ya marcó como terminado pasa a su historial
         # (aunque falte la confirmación del profesional).
@@ -485,9 +486,10 @@ class SolicitudViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.
         tipos = [validar_archivo(f) for f in archivos]
         urgente = str(self.request.data.get('es_urgente', '')).lower() in ('true', '1')
         with transaction.atomic():
-            s = serializer.save(cliente=perfil(self.request).cliente, es_urgente=urgente, estado=Estado.CREADA)
-            for f, t in zip(archivos, tipos):
-                AdjuntoSolicitud.objects.create(solicitud=s, archivo=f, tipo=t)
+            adjuntos = [{'archivo': default_storage.save(f'solicitudes/{f.name}', f), 'tipo': t}
+                        for f, t in zip(archivos, tipos)]
+            s = serializer.save(cliente=perfil(self.request).cliente, es_urgente=urgente,
+                                estado=Estado.CREADA, adjuntos=adjuntos)
         if urgente:
             asignacion.iniciar_asignacion(s)
         self._creada = s
@@ -623,8 +625,7 @@ class OfertaViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
 
     def get_queryset(self):
         qs = (OfertaTrabajo.objects.filter(profesional=perfil(self.request).profesional)
-              .select_related('solicitud__oficio', 'solicitud__direccion', 'solicitud__cliente__usuario__user')
-              .prefetch_related('solicitud__adjuntos'))
+              .select_related('solicitud__oficio', 'solicitud__direccion', 'solicitud__cliente__usuario__user'))
         if self.request.query_params.get('estado', 'PENDIENTE') == 'PENDIENTE' and self.action == 'list':
             qs = qs.filter(estado=EstadoOferta.PENDIENTE)
         return qs.order_by('-es_urgente', '-fecha_envio')
@@ -696,7 +697,7 @@ class TrabajoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.
 
     def get_queryset(self):
         qs = (SolicitudServicio.objects.filter(profesional=perfil(self.request).profesional)
-              .select_related('oficio', 'direccion', 'cliente__usuario__user').prefetch_related('adjuntos')
+              .select_related('oficio', 'direccion', 'cliente__usuario__user')
               .order_by('-fecha_aceptacion', '-fecha_solicitud'))
         e = self.request.query_params.get('estado')
         # Apenas el profesional lo marca como terminado sale de "pendientes" y pasa al

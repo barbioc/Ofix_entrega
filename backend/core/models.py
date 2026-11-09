@@ -189,16 +189,12 @@ class SolicitudServicio(models.Model):
     # True cuando la asignación automática recorrió los primeros 5 sin respuesta.
     busqueda_agotada = models.BooleanField(default=False)
     fecha_aceptacion = models.DateTimeField(null=True, blank=True)
+    # Fotos y videos del pedido, guardados en la misma fila (igual que el adjunto de un Mensaje).
+    # Lista de {"archivo": "solicitudes/foto.jpg", "tipo": "imagen" | "video"}. Máximo 10.
+    adjuntos = models.JSONField(default=list, blank=True)
 
     def __str__(self):
         return f"Solicitud #{self.id} - {self.oficio.nombre} ({self.estado})"
-
-
-class AdjuntoSolicitud(models.Model):
-    solicitud = models.ForeignKey(SolicitudServicio, on_delete=models.CASCADE, related_name='adjuntos')
-    archivo = models.FileField(upload_to='solicitudes/')
-    tipo = models.CharField(max_length=10, default='imagen')  # imagen | video
-    fecha = models.DateTimeField(auto_now_add=True)
 
 
 class OfertaTrabajo(models.Model):

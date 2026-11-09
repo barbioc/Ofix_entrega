@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.core.files.storage import default_storage
 from django.db.models import Count, Q
 from rest_framework import serializers
 
@@ -7,7 +8,7 @@ from . import asignacion
 from .geo import geocodificar
 from .models import (
     Usuario, Direccion, Oficio, Profesional, ExperienciaOficio, Certificacion,
-    SolicitudServicio, AdjuntoSolicitud, OfertaTrabajo, Calificacion,
+    SolicitudServicio, OfertaTrabajo, Calificacion,
     Conversacion, Mensaje, Notificacion,
 )
 
@@ -200,15 +201,14 @@ class ResenaSerializer(serializers.ModelSerializer):
 
 
 # ---------------------------------------------------------------- solicitudes
-class AdjuntoSerializer(FotoMixin, serializers.ModelSerializer):
-    url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = AdjuntoSolicitud
-        fields = ['id', 'tipo', 'url']
-
-    def get_url(self, obj):
-        return self._url(obj.archivo)
+def adjuntos_de(solicitud, request):
+    """Convierte la lista guardada en la solicitud en [{id, tipo, url}] para el frontend."""
+    out = []
+    for i, a in enumerate(solicitud.adjuntos or []):
+        url = default_storage.url(a['archivo'])
+        out.append({'id': i, 'tipo': a.get('tipo', 'imagen'),
+                    'url': request.build_absolute_uri(url) if request else url})
+    return out
 
 
 class CalificacionSerializer(serializers.ModelSerializer):
@@ -251,7 +251,7 @@ class SolicitudSerializer(FotoMixin, serializers.ModelSerializer):
     oficio_nombre = serializers.ReadOnlyField(source='oficio.nombre')
     oficio_slug = serializers.ReadOnlyField(source='oficio.slug')
     direccion_detalle = DireccionSerializer(source='direccion', read_only=True)
-    adjuntos = AdjuntoSerializer(many=True, read_only=True)
+    adjuntos = serializers.SerializerMethodField()
     calificacion = CalificacionSerializer(read_only=True)
     profesional_info = serializers.SerializerMethodField()
     profesional_contacto = serializers.SerializerMethodField()
@@ -277,6 +277,9 @@ class SolicitudSerializer(FotoMixin, serializers.ModelSerializer):
         if not (attrs.get('titulo') or '').strip() and not self.instance:
             raise serializers.ValidationError({'titulo': 'Escribí un título breve.'})
         return attrs
+
+    def get_adjuntos(self, obj):
+        return adjuntos_de(obj, self.context.get('request'))
 
     def get_profesional_info(self, obj):
         if not obj.profesional:
@@ -307,7 +310,7 @@ class SolicitudParaProfesionalSerializer(FotoMixin, serializers.ModelSerializer)
     """Vista del profesional. La dirección exacta y el contacto sólo si la aceptó."""
     oficio_nombre = serializers.ReadOnlyField(source='oficio.nombre')
     oficio_slug = serializers.ReadOnlyField(source='oficio.slug')
-    adjuntos = AdjuntoSerializer(many=True, read_only=True)
+    adjuntos = serializers.SerializerMethodField()
     zona = serializers.SerializerMethodField()
     cliente_nombre = serializers.SerializerMethodField()
     cliente_contacto = serializers.SerializerMethodField()
@@ -322,6 +325,9 @@ class SolicitudParaProfesionalSerializer(FotoMixin, serializers.ModelSerializer)
                   'es_urgente', 'fecha_solicitud', 'fecha_aceptacion', 'adjuntos', 'zona',
                   'cliente_nombre', 'cliente_contacto', 'direccion_exacta', 'distancia_km',
                   'completado_cliente', 'completado_profesional', 'calificacion', 'conversacion_id']
+
+    def get_adjuntos(self, obj):
+        return adjuntos_de(obj, self.context.get('request'))
 
     def _es_mio(self, obj):
         pro = self.context.get('profesional')

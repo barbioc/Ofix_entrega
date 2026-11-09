@@ -1,0 +1,42 @@
+@startuml despliegue
+title Ofix - Diagrama de despliegue
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor black
+skinparam node {
+  BackgroundColor white
+  BorderColor black
+}
+skinparam component {
+  BackgroundColor white
+  BorderColor black
+}
+
+node "Cliente\n(Navegador web)" as cliente {
+  component "Interfaces\n(Angular)" as interfaces
+}
+
+node "Servidor Web / API\n(Django)" as servidor {
+  component "Gestionar\nUsuarios" as usuarios
+  component "Gestionar\nPedidos" as pedidos
+  component "Chat y\nNotificaciones" as chat
+}
+
+node "Base de Datos" as bd {
+  component "MySQL" as mysql
+}
+
+node "Servicio externo\n(OpenStreetMap)" as osm {
+  component "Geocodificación" as geocod
+}
+
+' Orden de los elementos (no dibuja flechas)
+usuarios -[hidden]down- pedidos
+pedidos -[hidden]down- chat
+
+cliente <-right-> servidor : HTTP
+servidor <-right-> bd : SQL
+servidor <-down-> osm : HTTPS
+
+@enduml

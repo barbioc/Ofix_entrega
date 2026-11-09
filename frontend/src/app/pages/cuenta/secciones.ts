@@ -92,7 +92,7 @@ export class DatosPersonales implements OnInit {
               <strong>{{ d.alias || 'Dirección' }}</strong>
               @if (d.es_principal) { <span class="chip chip-blue ms-2">Principal</span> }
               <span class="d-block ofx-muted">{{ d.texto }}</span>
-              @if (d.latitud === null) { <span class="ofx-faint">Sin ubicar en el mapa: editala y tocá «Usar mi ubicación» para calcular distancias.</span> }
+              @if (d.latitud === null) { <span class="ofx-faint">No pudimos ubicar esta dirección. Revisá la calle, el número y la localidad.</span> }
             </div>
             <div class="d-flex gap-1 flex-wrap justify-content-end">
               @if (!d.es_principal) { <button class="btn btn-sm btn-quiet" (click)="principal(d)">Hacer principal</button> }

@@ -1,0 +1,185 @@
+@startuml entidad-relacion
+title Ofix — Diagrama Entidad-Relación
+
+skinparam shadowing false
+skinparam defaultFontName Arial
+hide circle
+hide empty methods
+
+entity "USUARIOS" as usuarios {
+  *id_usuario : INT <<PK>>
+  --
+  *email : VARCHAR(120) <<UK>>
+  *password_hash : VARCHAR(255)
+  *nombre : VARCHAR(60)
+  *apellido : VARCHAR(60)
+  *telefono : VARCHAR(25)
+  foto : VARCHAR(255)
+  *fecha_alta : DATETIME
+  *estado : ENUM(activo, suspendido, baja)
+}
+
+entity "PROFESIONALES" as profesionales {
+  *id_profesional : INT <<PK>>
+  --
+  *id_usuario : INT <<FK, UK>>
+  *dni : VARCHAR(20)
+  *estado_validacion : ENUM(pendiente, validado, rechazado)
+  descripcion : VARCHAR(255)
+  disponibilidad_horaria : VARCHAR(150)
+  horarios : JSON
+  puntaje_promedio : DECIMAL(2,1)
+  servicios_realizados : INT
+  .. zona de cobertura ..
+  *localidad_base : VARCHAR(60)
+  *radio_cobertura_km : INT
+}
+
+entity "CLIENTES" as clientes {
+  *id_cliente : INT <<PK>>
+  --
+  *id_usuario : INT <<FK, UK>>
+  calificaciones_emitidas : INT
+}
+
+entity "DIRECCIONES" as direcciones {
+  *id_direccion : INT <<PK>>
+  --
+  *id_usuario : INT <<FK>>
+  *calle : VARCHAR(80)
+  *numero : VARCHAR(10)
+  *localidad : VARCHAR(60)
+  *cod_postal : VARCHAR(10)
+  *latitud : DECIMAL(9,6)
+  *longitud : DECIMAL(9,6)
+  es_principal : BOOLEAN
+}
+
+entity "NOTIFICACIONES" as notificaciones {
+  *id_notificacion : INT <<PK>>
+  --
+  *id_usuario : INT <<FK>>
+  id_solicitud : INT <<FK>>
+  id_oferta : INT <<FK>>
+  *tipo : ENUM(solicitud, mensaje, sistema)
+  *mensaje : VARCHAR(255)
+  *fecha_envio : DATETIME
+  *leida : BOOLEAN
+}
+
+entity "OFICIOS" as oficios {
+  *id_oficio : INT <<PK>>
+  --
+  *nombre : VARCHAR(60) <<UK>>
+  *slug : VARCHAR(30)
+  descripcion : VARCHAR(255)
+}
+
+entity "CERTIFICACIONES" as certificaciones {
+  *id_certificacion : INT <<PK>>
+  --
+  *id_profesional : INT <<FK>>
+  *entidad_emisora : VARCHAR(80)
+  *fecha_emision : DATE
+  *estado : ENUM(pendiente, aprobada, rechazada)
+  archivo_url : VARCHAR(255)
+}
+
+entity "EXPERIENCIA_OFICIO" as experiencia {
+  *id_profesional : INT <<PK>> <<FK>>
+  *id_oficio : INT <<PK>> <<FK>>
+  --
+  anios_experiencia : INT
+}
+
+entity "SOLICITUDES_SERVICIOS" as solicitudes {
+  *id_solicitud : INT <<PK>>
+  --
+  *id_cliente : INT <<FK>>
+  id_profesional : INT <<FK>>
+  *id_oficio : INT <<FK>>
+  *id_direccion : INT <<FK>>
+  *titulo : VARCHAR(120)
+  *descripcion_problema : TEXT
+  adjuntos : JSON
+  *fecha_solicitud : DATETIME
+  *estado : ENUM(pendiente, aceptada, rechazada, finalizada, cancelada)
+  *es_urgente : BOOLEAN
+  *busqueda_agotada : BOOLEAN
+  fecha_aceptacion : DATETIME
+  *completado_cliente : BOOLEAN
+  *completado_profesional : BOOLEAN
+}
+
+entity "OFERTAS_TRABAJO" as ofertas {
+  *id_oferta : INT <<PK>>
+  --
+  *id_solicitud : INT <<FK>>
+  *id_profesional : INT <<FK>>
+  *estado : ENUM(pendiente, aceptada, rechazada, expirada, tomada, cancelada)
+  *es_urgente : BOOLEAN
+  *posicion : INT
+  score : DECIMAL(4,2)
+  distancia_km : DECIMAL(6,2)
+  *fecha_envio : DATETIME
+  fecha_respuesta : DATETIME
+}
+
+entity "CONVERSACIONES" as conversaciones {
+  *id_conversacion : INT <<PK>>
+  --
+  *id_solicitud : INT <<FK, UK>>
+  *fecha_apertura : DATETIME
+  *activa : BOOLEAN
+}
+
+entity "CALIFICACIONES" as calificaciones {
+  *id_calificacion : INT <<PK>>
+  --
+  *id_solicitud : INT <<FK, UK>>
+  *id_cliente : INT <<FK>>
+  *puntaje : INT
+  comentario : VARCHAR(500)
+  *fecha : DATETIME
+}
+
+entity "MENSAJES" as mensajes {
+  *id_mensaje : INT <<PK>>
+  --
+  *id_conversacion : INT <<FK>>
+  *id_cliente : INT <<FK>>
+  *id_profesional : INT <<FK>>
+  *emisor : ENUM(cliente, profesional)
+  texto : VARCHAR(1000)
+  adjunto : VARCHAR(255)
+  tipo_adjunto : ENUM(imagen, video, archivo)
+  *fecha_envio : DATETIME
+  *leido : BOOLEAN
+}
+
+' --- Usuarios
+usuarios ||--o| profesionales : se identifica como >
+usuarios ||--o{ direcciones : posee >
+usuarios ||--o| clientes : se identifica como >
+usuarios ||--o{ notificaciones : recibe >
+
+' --- Profesionales y oficios
+profesionales ||--o{ certificaciones : presenta >
+profesionales ||--o{ experiencia : ejerce >
+oficios ||--o{ experiencia : agrupa a >
+
+' --- Solicitudes
+clientes ||--o{ solicitudes : solicita >
+experiencia ||--o{ solicitudes : atiende >
+solicitudes ||--o{ ofertas : se envía como >
+profesionales ||--o{ ofertas : recibe >
+solicitudes ||--o| conversaciones : habilita >
+solicitudes ||--o| calificaciones : recibe >
+clientes ||--o{ calificaciones : emite >
+
+' --- Chat
+conversaciones ||--|{ mensajes : contiene >
+profesionales ||--o{ mensajes : participa como emisor/receptor >
+clientes ||--o{ mensajes : participa como emisor/receptor >
+
+@enduml

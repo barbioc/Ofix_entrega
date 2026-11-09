@@ -57,9 +57,6 @@ export class Registro implements OnInit, OnDestroy {
   calle = '';
   numero = '';
   departamento = '';
-  lat: number | null = null;
-  lng: number | null = null;
-  ubicando = signal(false);
 
   // paso 4
   oficios = signal<Oficio[]>([]);
@@ -143,19 +140,6 @@ export class Registro implements OnInit, OnDestroy {
     this.fotoUrl.set(null);
   }
 
-  usarUbicacion() {
-    if (!navigator.geolocation) {
-      this.toasts.error('Tu navegador no permite compartir la ubicación.');
-      return;
-    }
-    this.ubicando.set(true);
-    navigator.geolocation.getCurrentPosition(
-      p => { this.lat = p.coords.latitude; this.lng = p.coords.longitude; this.ubicando.set(false); this.toasts.ok('Ubicación guardada para calcular distancias.'); },
-      () => { this.ubicando.set(false); this.toasts.error('No pudimos obtener tu ubicación. Usaremos la dirección escrita.'); },
-      { timeout: 10000 },
-    );
-  }
-
   crearCuenta() {
     const esPro = this.rol() === 'PROFESIONAL';
     const e: Record<string, string> = {};
@@ -181,10 +165,6 @@ export class Registro implements OnInit, OnDestroy {
       calle: this.calle.trim(), numero: this.numero.trim(), departamento: this.departamento.trim(),
     };
     Object.entries(campos).forEach(([k, v]) => fd.append(k, v));
-    if (this.lat !== null && this.lng !== null) {
-      fd.append('latitud', String(this.lat));
-      fd.append('longitud', String(this.lng));
-    }
     if (this.foto) fd.append('foto', this.foto);
 
     this.cargando.set(true);
