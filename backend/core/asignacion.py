@@ -23,7 +23,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
-PRIORIDAD_MINUTOS = getattr(settings, 'OFIX_PRIORIDAD_MINUTOS', 30)
+PRIORIDAD_MINUTOS = getattr(settings, 'OFIX_PRIORIDAD_MINUTOS', 1)
 MAX_CANDIDATOS = getattr(settings, 'OFIX_MAX_CANDIDATOS', 5)
 
 MENSAJE_SIN_RESPUESTA = (

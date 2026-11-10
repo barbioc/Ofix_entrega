@@ -152,7 +152,7 @@ if DEBUG:  # en desarrollo, cualquier puerto local (por si 4200 está ocupado)
     CORS_ALLOWED_ORIGIN_REGEXES = [r'^http://(localhost|127\.0\.0\.1):\d+$']
 
 # Asignación de urgencias
-OFIX_PRIORIDAD_MINUTOS = float(os.environ.get('OFIX_PRIORIDAD_MINUTOS', 30))  # usar 1 para probar rápido
+OFIX_PRIORIDAD_MINUTOS = float(os.environ.get('OFIX_PRIORIDAD_MINUTOS', 1))  # usar 1 para probar rápido
 OFIX_MAX_CANDIDATOS = 5
 OFIX_GEOCODIFICAR = os.environ.get('OFIX_GEOCODIFICAR', '1') == '1'
 

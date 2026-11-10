@@ -6,180 +6,183 @@ skinparam defaultFontName Arial
 hide circle
 hide empty methods
 
+' Los campos que pueden quedar vacíos llevan "NULL" junto al tipo.
+' Cada flecha sale de la FK y llega a la PK que referencia.
+
 entity "USUARIOS" as usuarios {
-  *id_usuario : INT <<PK>>
+  id_usuario : INT <<PK>>
   --
-  *email : VARCHAR(120) <<UK>>
-  *password_hash : VARCHAR(255)
-  *nombre : VARCHAR(60)
-  *apellido : VARCHAR(60)
-  *telefono : VARCHAR(25)
-  foto : VARCHAR(255)
-  *fecha_alta : DATETIME
-  *estado : ENUM(activo, suspendido, baja)
+  email : VARCHAR(120) <<UK>>
+  password_hash : VARCHAR(255)
+  nombre : VARCHAR(60)
+  apellido : VARCHAR(60)
+  telefono : VARCHAR(25)
+  foto : VARCHAR(255) NULL
+  fecha_alta : DATETIME
+  estado : ENUM(activo, suspendido, baja)
 }
 
 entity "PROFESIONALES" as profesionales {
-  *id_profesional : INT <<PK>>
+  id_profesional : INT <<PK>>
   --
-  *id_usuario : INT <<FK, UK>>
-  *dni : VARCHAR(20)
-  *estado_validacion : ENUM(pendiente, validado, rechazado)
-  descripcion : VARCHAR(255)
-  disponibilidad_horaria : VARCHAR(150)
-  horarios : JSON
-  puntaje_promedio : DECIMAL(2,1)
-  servicios_realizados : INT
+  id_usuario : INT <<FK, UK>>
+  dni : VARCHAR(20)
+  estado_validacion : ENUM(pendiente, validado, rechazado)
+  descripcion : VARCHAR(255) NULL
+  disponibilidad_horaria : VARCHAR(150) NULL
+  horarios : JSON NULL
+  puntaje_promedio : DECIMAL(2,1) NULL
+  servicios_realizados : INT NULL
   .. zona de cobertura ..
-  *localidad_base : VARCHAR(60)
-  *radio_cobertura_km : INT
+  localidad_base : VARCHAR(60)
+  radio_cobertura_km : INT
 }
 
 entity "CLIENTES" as clientes {
-  *id_cliente : INT <<PK>>
+  id_cliente : INT <<PK>>
   --
-  *id_usuario : INT <<FK, UK>>
-  calificaciones_emitidas : INT
+  id_usuario : INT <<FK, UK>>
+  calificaciones_emitidas : INT NULL
 }
 
 entity "DIRECCIONES" as direcciones {
-  *id_direccion : INT <<PK>>
+  id_direccion : INT <<PK>>
   --
-  *id_usuario : INT <<FK>>
-  *calle : VARCHAR(80)
-  *numero : VARCHAR(10)
-  *localidad : VARCHAR(60)
-  *cod_postal : VARCHAR(10)
-  *latitud : DECIMAL(9,6)
-  *longitud : DECIMAL(9,6)
-  es_principal : BOOLEAN
+  id_usuario : INT <<FK>>
+  calle : VARCHAR(80)
+  numero : VARCHAR(10)
+  localidad : VARCHAR(60)
+  cod_postal : VARCHAR(10)
+  latitud : DECIMAL(9,6)
+  longitud : DECIMAL(9,6)
+  es_principal : BOOLEAN NULL
 }
 
 entity "NOTIFICACIONES" as notificaciones {
-  *id_notificacion : INT <<PK>>
+  id_notificacion : INT <<PK>>
   --
-  *id_usuario : INT <<FK>>
-  id_solicitud : INT <<FK>>
-  id_oferta : INT <<FK>>
-  *tipo : ENUM(solicitud, mensaje, sistema)
-  *mensaje : VARCHAR(255)
-  *fecha_envio : DATETIME
-  *leida : BOOLEAN
+  id_usuario : INT <<FK>>
+  id_solicitud : INT <<FK>> NULL
+  id_oferta : INT <<FK>> NULL
+  tipo : ENUM(solicitud, mensaje, sistema)
+  mensaje : VARCHAR(255)
+  fecha_envio : DATETIME
+  leida : BOOLEAN
 }
 
 entity "OFICIOS" as oficios {
-  *id_oficio : INT <<PK>>
+  id_oficio : INT <<PK>>
   --
-  *nombre : VARCHAR(60) <<UK>>
-  *slug : VARCHAR(30)
-  descripcion : VARCHAR(255)
+  nombre : VARCHAR(60) <<UK>>
+  slug : VARCHAR(30)
+  descripcion : VARCHAR(255) NULL
 }
 
 entity "CERTIFICACIONES" as certificaciones {
-  *id_certificacion : INT <<PK>>
+  id_certificacion : INT <<PK>>
   --
-  *id_profesional : INT <<FK>>
-  *entidad_emisora : VARCHAR(80)
-  *fecha_emision : DATE
-  *estado : ENUM(pendiente, aprobada, rechazada)
-  archivo_url : VARCHAR(255)
+  id_profesional : INT <<FK>>
+  entidad_emisora : VARCHAR(80)
+  fecha_emision : DATE
+  estado : ENUM(pendiente, aprobada, rechazada)
+  archivo_url : VARCHAR(255) NULL
 }
 
 entity "EXPERIENCIA_OFICIO" as experiencia {
-  *id_profesional : INT <<PK>> <<FK>>
-  *id_oficio : INT <<PK>> <<FK>>
+  id_profesional : INT <<PK, FK>>
+  id_oficio : INT <<PK, FK>>
   --
-  anios_experiencia : INT
+  anios_experiencia : INT NULL
 }
 
 entity "SOLICITUDES_SERVICIOS" as solicitudes {
-  *id_solicitud : INT <<PK>>
+  id_solicitud : INT <<PK>>
   --
-  *id_cliente : INT <<FK>>
-  id_profesional : INT <<FK>>
-  *id_oficio : INT <<FK>>
-  *id_direccion : INT <<FK>>
-  *titulo : VARCHAR(120)
-  *descripcion_problema : TEXT
-  adjuntos : JSON
-  *fecha_solicitud : DATETIME
-  *estado : ENUM(pendiente, aceptada, rechazada, finalizada, cancelada)
-  *es_urgente : BOOLEAN
-  *busqueda_agotada : BOOLEAN
-  fecha_aceptacion : DATETIME
-  *completado_cliente : BOOLEAN
-  *completado_profesional : BOOLEAN
+  id_cliente : INT <<FK>>
+  id_profesional : INT <<FK>> NULL
+  id_oficio : INT <<FK>>
+  id_direccion : INT <<FK>>
+  titulo : VARCHAR(120)
+  descripcion_problema : TEXT
+  adjuntos : JSON NULL
+  fecha_solicitud : DATETIME
+  estado : ENUM(pendiente, aceptada, rechazada, finalizada, cancelada)
+  es_urgente : BOOLEAN
+  busqueda_agotada : BOOLEAN
+  fecha_aceptacion : DATETIME NULL
+  completado_cliente : BOOLEAN
+  completado_profesional : BOOLEAN
 }
 
 entity "OFERTAS_TRABAJO" as ofertas {
-  *id_oferta : INT <<PK>>
+  id_oferta : INT <<PK>>
   --
-  *id_solicitud : INT <<FK>>
-  *id_profesional : INT <<FK>>
-  *estado : ENUM(pendiente, aceptada, rechazada, expirada, tomada, cancelada)
-  *es_urgente : BOOLEAN
-  *posicion : INT
-  score : DECIMAL(4,2)
-  distancia_km : DECIMAL(6,2)
-  *fecha_envio : DATETIME
-  fecha_respuesta : DATETIME
+  id_solicitud : INT <<FK>>
+  id_profesional : INT <<FK>>
+  estado : ENUM(pendiente, aceptada, rechazada, expirada, tomada, cancelada)
+  es_urgente : BOOLEAN
+  posicion : INT
+  score : DECIMAL(4,2) NULL
+  distancia_km : DECIMAL(6,2) NULL
+  fecha_envio : DATETIME
+  fecha_respuesta : DATETIME NULL
 }
 
 entity "CONVERSACIONES" as conversaciones {
-  *id_conversacion : INT <<PK>>
+  id_conversacion : INT <<PK>>
   --
-  *id_solicitud : INT <<FK, UK>>
-  *fecha_apertura : DATETIME
-  *activa : BOOLEAN
+  id_solicitud : INT <<FK, UK>>
+  fecha_apertura : DATETIME
+  activa : BOOLEAN
 }
 
 entity "CALIFICACIONES" as calificaciones {
-  *id_calificacion : INT <<PK>>
+  id_calificacion : INT <<PK>>
   --
-  *id_solicitud : INT <<FK, UK>>
-  *id_cliente : INT <<FK>>
-  *puntaje : INT
-  comentario : VARCHAR(500)
-  *fecha : DATETIME
+  id_solicitud : INT <<FK, UK>>
+  id_cliente : INT <<FK>>
+  puntaje : INT
+  comentario : VARCHAR(500) NULL
+  fecha : DATETIME
 }
 
 entity "MENSAJES" as mensajes {
-  *id_mensaje : INT <<PK>>
+  id_mensaje : INT <<PK>>
   --
-  *id_conversacion : INT <<FK>>
-  *id_cliente : INT <<FK>>
-  *id_profesional : INT <<FK>>
-  *emisor : ENUM(cliente, profesional)
-  texto : VARCHAR(1000)
-  adjunto : VARCHAR(255)
-  tipo_adjunto : ENUM(imagen, video, archivo)
-  *fecha_envio : DATETIME
-  *leido : BOOLEAN
+  id_conversacion : INT <<FK>>
+  id_cliente : INT <<FK>>
+  id_profesional : INT <<FK>>
+  emisor : ENUM(cliente, profesional)
+  texto : VARCHAR(1000) NULL
+  adjunto : VARCHAR(255) NULL
+  tipo_adjunto : ENUM(imagen, video, archivo) NULL
+  fecha_envio : DATETIME
+  leido : BOOLEAN
 }
 
 ' --- Usuarios
-usuarios ||--o| profesionales : se identifica como >
-usuarios ||--o{ direcciones : posee >
-usuarios ||--o| clientes : se identifica como >
-usuarios ||--o{ notificaciones : recibe >
+profesionales::id_usuario |o--|| usuarios::id_usuario : < se identifica como
+direcciones::id_usuario }o--|| usuarios::id_usuario : < posee
+clientes::id_usuario |o--|| usuarios::id_usuario : < se identifica como
+notificaciones::id_usuario }o--|| usuarios::id_usuario : < recibe
 
 ' --- Profesionales y oficios
-profesionales ||--o{ certificaciones : presenta >
-profesionales ||--o{ experiencia : ejerce >
-oficios ||--o{ experiencia : agrupa a >
+certificaciones::id_profesional }o--|| profesionales::id_profesional : < presenta
+experiencia::id_profesional }o--|| profesionales::id_profesional : < ejerce
+experiencia::id_oficio }o--|| oficios::id_oficio : < agrupa a
 
 ' --- Solicitudes
-clientes ||--o{ solicitudes : solicita >
-experiencia ||--o{ solicitudes : atiende >
-solicitudes ||--o{ ofertas : se envía como >
-profesionales ||--o{ ofertas : recibe >
-solicitudes ||--o| conversaciones : habilita >
-solicitudes ||--o| calificaciones : recibe >
-clientes ||--o{ calificaciones : emite >
+solicitudes::id_cliente }o--|| clientes::id_cliente : < solicita
+solicitudes::id_profesional }o--|| experiencia::id_profesional : < atiende\n(id_profesional, id_oficio)
+ofertas::id_solicitud }o--|| solicitudes::id_solicitud : < se envía como
+ofertas::id_profesional }o--|| profesionales::id_profesional : < recibe
+conversaciones::id_solicitud |o--|| solicitudes::id_solicitud : < habilita
+calificaciones::id_solicitud |o--|| solicitudes::id_solicitud : < recibe
+calificaciones::id_cliente }o--|| clientes::id_cliente : < emite
 
 ' --- Chat
-conversaciones ||--|{ mensajes : contiene >
-profesionales ||--o{ mensajes : participa como emisor/receptor >
-clientes ||--o{ mensajes : participa como emisor/receptor >
+mensajes::id_conversacion }|--|| conversaciones::id_conversacion : < contiene
+mensajes::id_profesional }o--|| profesionales::id_profesional : < participa como emisor/receptor
+mensajes::id_cliente }o--|| clientes::id_cliente : < participa como emisor/receptor
 
 @enduml
